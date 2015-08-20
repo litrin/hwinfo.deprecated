@@ -224,14 +224,14 @@ func HWInfo() (map[string]string, error) {
 		}
 		merge(sys, o2)
 
-		o3, err3 := execCmd("/usr/sbin/system_profiler", []string{"SPHardwareDataType"}, ":", system_profiler_fields)
+		o3, err3 := execCmd("/usr/sbin/system_profiler", []string{"SPHardwareDataType"}, ":", systemProfilerFields)
 		if err3 != nil {
 			return map[string]string{}, err3
 		}
 		merge(sys, o3)
 
 	case "linux":
-		o, err := loadFiles(sys_files)
+		o, err := loadFiles(sysFiles)
 		if err != nil {
 			return map[string]string{}, err
 		}
