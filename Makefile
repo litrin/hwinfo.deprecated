@@ -1,5 +1,3 @@
-PACKAGE:=$(shell git config --get remote.origin.url | sed -e 's!^git@!!' -e 's!\.git$!!' -e 's!:!/!')
-
 all: test readme
 
 format:
@@ -11,4 +9,4 @@ test: format
 	go build
 
 readme:
-	godoc2md ${PACKAGE} >README.md
+	godoc2md github.com/mickep76/hwinfo >README.md
