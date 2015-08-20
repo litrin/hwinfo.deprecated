@@ -11,6 +11,8 @@
 ``` go
 func HWInfo() (map[string]string, error)
 ```
+HWInfo returns a map[string]string with hardware info about the current system.
+
 
 
 
