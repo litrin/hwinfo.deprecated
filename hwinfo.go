@@ -18,11 +18,11 @@ func cpuInfo() (map[string]string, error) {
 
 	b, err := ioutil.ReadFile("/proc/cpuinfo")
 	if err != nil {
-		return map[string]string{}, errors.New(fmt.Sprintf("can't read file: %s", err))
+		return map[string]string{}, fmt.Errorf("can't read file: %s", err)
 	}
 
-	cpu_id := int64(-1)
-	cpu_ids := make(map[int64]int64)
+	cpuID := int64(-1)
+	cpuIDs := make(map[int64]int64)
 	cores := int64(0)
 	for _, line := range strings.Split(string(b), "\n") {
 		values := strings.Split(line, ":")
@@ -37,15 +37,15 @@ func cpuInfo() (map[string]string, error) {
 		} else if strings.HasPrefix(line, "processor") {
 			logical++
 		} else if strings.HasPrefix(line, "physical id") {
-			cpu_id, _ = strconv.ParseInt(strings.Trim(strings.Join(values[1:], " "), " "), 10, 0)
-			cpu_ids[cpu_id] = cpu_ids[cpu_id] + 1
+			cpuID, _ = strconv.ParseInt(strings.Trim(strings.Join(values[1:], " "), " "), 10, 0)
+			cpuIDs[cpuID] = cpuIDs[cpuID] + 1
 		}
 	}
 	d["cpu_logical"] = strconv.FormatInt(logical, 10)
-	sockets := int64(len(cpu_ids))
+	sockets := int64(len(cpuIDs))
 	d["cpu_sockets"] = strconv.FormatInt(sockets, 10)
 	d["cpu_cores_per_socket"] = strconv.FormatInt(cores, 10)
-	physical := int64(len(cpu_ids)) * cores
+	physical := int64(len(cpuIDs)) * cores
 	d["cpu_physical"] = strconv.FormatInt(physical, 10)
 	t := logical / sockets / cores
 	d["cpu_threads_per_core"] = strconv.FormatInt(t, 10)
@@ -63,7 +63,7 @@ func loadFiles(files map[string]string) (map[string]string, error) {
 
 		b, err := ioutil.ReadFile(v)
 		if err != nil {
-			return map[string]string{}, errors.New(fmt.Sprintf("can't read file: %s", err))
+			return map[string]string{}, fmt.Errorf("can't read file: %s", err)
 		}
 
 		d[k] = strings.Trim(string(b), "\n")
@@ -77,7 +77,7 @@ func loadFile(file string, del string, fields map[string]string) (map[string]str
 
 	out, err := ioutil.ReadFile(file)
 	if err != nil {
-		return map[string]string{}, errors.New(fmt.Sprintf("can't read file: %s", err))
+		return map[string]string{}, fmt.Errorf("can't read file: %s", err)
 	}
 
 	for _, line := range strings.Split(string(out), "\n") {
@@ -126,8 +126,9 @@ func merge(a map[string]string, b map[string]string) {
 	}
 }
 
+// HWInfo returns a map[string]string with hardware info about the current system.
 func HWInfo() (map[string]string, error) {
-	sys_files := map[string]string{
+	sysFiles := map[string]string{
 		// check for perm. to read it
 		//		"serial_number":   "/sys/devices/virtual/dmi/id/product_serial",
 		"manufacturer":    "/sys/devices/virtual/dmi/id/chassis_vendor",
@@ -138,7 +139,7 @@ func HWInfo() (map[string]string, error) {
 		"bios_version":    "/sys/devices/virtual/dmi/id/bios_version",
 	}
 
-	sysctl_fields := map[string]string{
+	sysctlFields := map[string]string{
 		"mem_total_b":          "hw.memsize",
 		"cpu_cores_per_socket": "machdep.cpu.core_count",
 		"cpu_physical":         "hw.physicalcpu_max",
@@ -147,21 +148,21 @@ func HWInfo() (map[string]string, error) {
 		"cpu_flags":            "machdep.cpu.features",
 	}
 
-	sw_vers_fields := map[string]string{
+	swVersFields := map[string]string{
 		"os_name":    "ProductName",
 		"os_version": "ProductVersion",
 	}
 
-	lsb_release_fields := map[string]string{
+	lsbReleaseFields := map[string]string{
 		"os_name":    "Distributor ID",
 		"os_version": "Release",
 	}
 
-	meminfo_fields := map[string]string{
+	meminfoFields := map[string]string{
 		"mem_total_kb": "MemTotal",
 	}
 
-	system_profiler_fields := map[string]string{
+	systemProfilerFields := map[string]string{
 		"model_name":        "Model Name",
 		"model_id":          "Model Identifier",
 		"boot_room_version": "Boot ROM Version",
@@ -188,7 +189,7 @@ func HWInfo() (map[string]string, error) {
 
 	switch runtime.GOOS {
 	case "darwin":
-		o, err := execCmd("/usr/sbin/sysctl", []string{"-a"}, ":", sysctl_fields)
+		o, err := execCmd("/usr/sbin/sysctl", []string{"-a"}, ":", sysctlFields)
 		if err != nil {
 			return map[string]string{}, err
 		}
@@ -198,14 +199,14 @@ func HWInfo() (map[string]string, error) {
 		b, err := strconv.ParseUint(sys["mem_total_b"], 10, 64)
 		if err != nil {
 			return map[string]string{}, err
-		} else {
-			kb := b / 1024
-			mb := kb / 1024
-			gb := mb / 1024
-			sys["mem_total_kb"] = strconv.FormatUint(kb, 10)
-			sys["mem_total_mb"] = strconv.FormatUint(mb, 10)
-			sys["mem_total_gb"] = strconv.FormatUint(gb, 10)
 		}
+
+		kb := b / 1024
+		mb := kb / 1024
+		gb := mb / 1024
+		sys["mem_total_kb"] = strconv.FormatUint(kb, 10)
+		sys["mem_total_mb"] = strconv.FormatUint(mb, 10)
+		sys["mem_total_gb"] = strconv.FormatUint(gb, 10)
 
 		c, _ := strconv.ParseUint(sys["cpu_cores_per_socket"], 10, 64)
 		p, _ := strconv.ParseUint(sys["cpu_physical"], 10, 64)
@@ -217,7 +218,7 @@ func HWInfo() (map[string]string, error) {
 
 		sys["cpu_flags"] = strings.ToLower(sys["cpu_flags"])
 
-		o2, err2 := execCmd("/usr/bin/sw_vers", []string{}, ":", sw_vers_fields)
+		o2, err2 := execCmd("/usr/bin/sw_vers", []string{}, ":", swVersFields)
 		if err2 != nil {
 			return map[string]string{}, err2
 		}
@@ -240,7 +241,7 @@ func HWInfo() (map[string]string, error) {
 			sys["virtual"] = "Amazon EC2"
 		}
 
-		o2, err2 := execCmd("/usr/bin/lsb_release", []string{"-a"}, ":", lsb_release_fields)
+		o2, err2 := execCmd("/usr/bin/lsb_release", []string{"-a"}, ":", lsbReleaseFields)
 		if err2 != nil {
 			return map[string]string{}, err2
 		}
@@ -252,7 +253,7 @@ func HWInfo() (map[string]string, error) {
 		}
 		merge(sys, o3)
 
-		o4, err4 := loadFile("/proc/meminfo", ":", meminfo_fields)
+		o4, err4 := loadFile("/proc/meminfo", ":", meminfoFields)
 		if err4 != nil {
 			return map[string]string{}, err4
 		}
@@ -263,17 +264,17 @@ func HWInfo() (map[string]string, error) {
 		kb, err := strconv.ParseUint(sys["mem_total_kb"], 10, 64)
 		if err != nil {
 			return map[string]string{}, err
-		} else {
-			b := kb * 1024
-			mb := kb / 1024
-			gb := mb / 1024
-			sys["mem_total_b"] = strconv.FormatUint(b, 10)
-			sys["mem_total_mb"] = strconv.FormatUint(mb, 10)
-			sys["mem_total_gb"] = strconv.FormatUint(gb, 10)
 		}
 
+		b := kb * 1024
+		mb := kb / 1024
+		gb := mb / 1024
+		sys["mem_total_b"] = strconv.FormatUint(b, 10)
+		sys["mem_total_mb"] = strconv.FormatUint(mb, 10)
+		sys["mem_total_gb"] = strconv.FormatUint(gb, 10)
+
 	default:
-		return map[string]string{}, errors.New(fmt.Sprintf("unsupported plattform (%s), needs to be either linux or darwin", runtime.GOOS))
+		return map[string]string{}, fmt.Errorf("unsupported plattform (%s), needs to be either linux or darwin", runtime.GOOS)
 	}
 
 	return sys, nil
