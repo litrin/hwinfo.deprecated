@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-// GetInfo return information about a systems CPU(s).
+// GetInfo return information about a systems memory.
 func GetInfo() (Info, error) {
 	fields := []string{
 		"hw.memsize",
