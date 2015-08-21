@@ -4,7 +4,6 @@ package os
 
 import (
 	"github.com/mickep76/hwinfo/common"
-	"strconv"
 )
 
 // GetInfo return information about a systems memory.
@@ -16,7 +15,7 @@ func GetInfo() (Info, error) {
 
 	i := Info{}
 
-	o, err := common.ExecCmdFields("/usr/sbin/sw_vers", []string{}, ":", fields)
+	o, err := common.ExecCmdFields("/usr/bin/sw_vers", []string{}, ":", fields)
 	if err != nil {
 		return Info{}, err
 	}
@@ -24,5 +23,5 @@ func GetInfo() (Info, error) {
 	i.Product = o["ProductName"]
 	i.Version = o["ProductVersion"]
 
-	return r, nil
+	return i, nil
 }
