@@ -77,3 +77,45 @@ GetInfo return information about a systems CPU(s).
 
 
 - - -
+
+# mem
+    import "github.com/mickep76/hwinfo/mem"
+
+
+
+
+
+
+
+## type Info
+``` go
+type Info struct {
+    TotalKB int `json:"total_kb"`
+}
+```
+Info structure for information about a systems memory
+
+
+
+
+
+
+
+
+
+### func GetInfo
+``` go
+func GetInfo() (Info, error)
+```
+GetInfo return information about a systems CPU(s).
+
+
+
+
+
+
+
+
+
+
+- - -

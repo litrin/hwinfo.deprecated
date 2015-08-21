@@ -11,3 +11,4 @@ test:
 readme:
 	godoc2md github.com/mickep76/hwinfo/common | grep -v Generated >README.md
 	godoc2md github.com/mickep76/hwinfo/cpu | grep -v Generated >>README.md
+	godoc2md github.com/mickep76/hwinfo/mem | grep -v Generated >>README.md
