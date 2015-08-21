@@ -3,23 +3,24 @@
 package cpu
 
 import (
-	"fmt"
-	"github.com/mickep76/hwinfo/common"
+	"errors"
 	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
 
-func CPUInfo() (CPUInfo, error) {
-	c := CPUInfo
+// GetInfo return information about a systems CPU(s).
+func GetInfo() (Info, error) {
+	c := Info{}
 
 	if _, err := os.Stat("/proc/cpuinfo"); os.IsNotExist(err) {
-		return []string{}, fmt.Errorf("file doesn't exist: %s", fn)
+		return Info{}, errors.New("file doesn't exist: /proc/cpuinfo")
 	}
 
 	o, err := ioutil.ReadFile("/proc/cpuinfo")
 	if err != nil {
-		return CPUInfo{}, fmt.Error("can't read file: /proc/cpuinfo")
+		return Info{}, err
 	}
 
 	cpuID := -1
@@ -38,16 +39,16 @@ func CPUInfo() (CPUInfo, error) {
 		} else if c.Flags == "" && strings.HasPrefix(line, "flags") {
 			c.Flags = v
 		} else if c.CoresPerSocket == 0 && strings.HasPrefix(line, "cpu cores") {
-			c.CoresPerSocket, err = strconv.ParseInt(v, 10, 0)
+			c.CoresPerSocket, err = strconv.Atoi(v)
 			if err != nil {
-				return CpuInfo{}, err
+				return Info{}, err
 			}
 		} else if strings.HasPrefix(line, "processor") {
 			c.Logical++
 		} else if strings.HasPrefix(line, "physical id") {
-			cpuID, err = strconv.ParseInt(v, 10, 0)
+			cpuID, err = strconv.Atoi(v)
 			if err != nil {
-				return CpuInfo{}, err
+				return Info{}, err
 			}
 			cpuIDs[cpuID] = true
 		}
