@@ -163,11 +163,11 @@ func HWInfo() (map[string]string, error) {
 	}
 
 	systemProfilerFields := map[string]string{
-		"model_name":        "Model Name",
-		"model_id":          "Model Identifier",
-		"boot_room_version": "Boot ROM Version",
-		"smc_version":       "SMC Version",
-		"serial_number":     "Serial Number",
+		"model_name":       "Model Name",
+		"model_id":         "Model Identifier",
+		"boot_rom_version": "Boot ROM Version",
+		"smc_version":      "SMC Version",
+		"serial_number":    "Serial Number",
 	}
 
 	sys := make(map[string]string)
