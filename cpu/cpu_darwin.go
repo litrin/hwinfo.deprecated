@@ -4,11 +4,12 @@ package cpu
 
 import (
 	"common"
-	"github.com/mickep76/hwinfo/common"
+	common "github.com/mickep76/hwinfo/common"
 	"strings"
 )
 
-func CPUInfo() (CPUInfo, error) {
+// Info return information about a systems CPU(s).
+func Info() (Info, error) {
 	fields := []string{
 		"machdep.cpu.core_count",
 		"hw.physicalcpu_max",

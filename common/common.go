@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
 )
 
 // LoadFileFields returns fields from file.
 func LoadFileFields(fn string, del string, fields []string) (map[string]string, error) {
 	if _, err := os.Stat(fn); os.IsNotExist(err) {
-		return []string{}, fmt.Errorf("file doesn't exist: %s", fn)
+		return map[string]string{}, fmt.Errorf("file doesn't exist: %s", fn)
 	}
 
 	o, err := ioutil.ReadFile(fn)
@@ -18,12 +19,12 @@ func LoadFileFields(fn string, del string, fields []string) (map[string]string, 
 		return map[string]string{}, err
 	}
 
-	r, err := parseFields(o, del, fields)
+	r, err := parseFields(string(o), del, fields)
 	if err != nil {
 		return map[string]string{}, err
 	}
 
-	return r
+	return r, nil
 }
 
 // ExecCmdFields returns fields from command output.
@@ -33,12 +34,12 @@ func ExecCmdFields(cmd string, args []string, del string, fields []string) (map[
 		return map[string]string{}, err
 	}
 
-	r, err := parseFields(o, del, fields)
+	r, err := parseFields(string(o), del, fields)
 	if err != nil {
 		return map[string]string{}, err
 	}
 
-	return r
+	return r, nil
 }
 
 func parseFields(o string, del string, fields []string) (map[string]string, error) {
@@ -50,9 +51,9 @@ func parseFields(o string, del string, fields []string) (map[string]string, erro
 			continue
 		}
 
-		for f := range fields {
+		for _, f := range fields {
 			if strings.HasPrefix(line, f) {
-				r[f] = strings.Trim(strings.Join(values[1:], " "), " \t")
+				r[f] = strings.Trim(strings.Join(vals[1:], " "), " \t")
 			}
 		}
 	}
