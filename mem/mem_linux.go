@@ -13,17 +13,17 @@ func GetInfo() (Info, error) {
 		"MemTotal",
 	}
 
-	m := Info{}
+	i := Info{}
 
 	o, err := common.LoadFileFields("/proc/meminfo", ":", fields)
 	if err != nil {
 		return Info{}, err
 	}
 
-	m.TotalKB, err = strconv.Atoi(o["MemTotal"])
+	i.TotalKB, err = strconv.Atoi(o["MemTotal"])
 	if err != nil {
 		return Info{}, err
 	}
 
-	return m, nil
+	return i, nil
 }

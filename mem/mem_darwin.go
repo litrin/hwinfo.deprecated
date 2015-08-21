@@ -13,18 +13,18 @@ func GetInfo() (Info, error) {
 		"hw.memsize",
 	}
 
-	m := Info{}
+	i := Info{}
 
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", fields)
 	if err != nil {
 		return Info{}, err
 	}
 
-	m.TotalKB, err = strconv.Atoi(o["hw.memsize"])
-	m.TotalKB = m.TotalKB / 1024
+	i.TotalKB, err = strconv.Atoi(o["hw.memsize"])
+	i.TotalKB = i.TotalKB / 1024
 	if err != nil {
 		return Info{}, err
 	}
 
-	return m, nil
+	return i, nil
 }
