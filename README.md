@@ -13,6 +13,7 @@
 type Info struct {
     CPU *cpu.Info `json:"cpu"`
     Mem *mem.Info `json:"mem"`
+    OS  *os.Info  `json:"os"`
 }
 ```
 Info structure for information a system.
@@ -106,6 +107,49 @@ type Info struct {
 }
 ```
 Info structure for information about a systems memory.
+
+
+
+
+
+
+
+
+
+### func GetInfo
+``` go
+func GetInfo() (Info, error)
+```
+GetInfo return information about a systems memory.
+
+
+
+
+
+
+
+
+
+
+- - -
+
+# os
+    import "github.com/mickep76/hwinfo/os"
+
+
+
+
+
+
+
+## type Info
+``` go
+type Info struct {
+    Product string `json:"product"`
+    Version string `json:"version"`
+}
+```
+Info structure for information about a systems operating system.
 
 
 
