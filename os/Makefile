@@ -6,5 +6,5 @@ format:
 test: format
 	golint
 	go vet
-	go build mem.go mem_linux.go
-	go build mem.go mem_darwin.go
+	go build os.go os_linux.go
+	go build os.go os_darwin.go
