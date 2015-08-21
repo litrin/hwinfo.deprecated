@@ -11,7 +11,7 @@
 ``` go
 func ExecCmdFields(cmd string, args []string, del string, fields []string) (map[string]string, error)
 ```
-ExecCmdFields returns fields from command output.
+ExecCmdFields returns fields from output.
 
 
 ## func LoadFileFields
@@ -93,7 +93,7 @@ type Info struct {
     TotalKB int `json:"total_kb"`
 }
 ```
-Info structure for information about a systems memory
+Info structure for information about a systems memory.
 
 
 
@@ -107,7 +107,7 @@ Info structure for information about a systems memory
 ``` go
 func GetInfo() (Info, error)
 ```
-GetInfo return information about a systems CPU(s).
+GetInfo return information about a systems memory.
 
 
 
