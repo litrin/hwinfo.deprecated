@@ -1,24 +1,36 @@
 
-# common
-    import "github.com/mickep76/hwinfo/common"
+# hwinfo
+    import "github.com/mickep76/hwinfo"
 
 
 
 
 
 
-## func ExecCmdFields
+
+## type Info
 ``` go
-func ExecCmdFields(cmd string, args []string, del string, fields []string) (map[string]string, error)
+type Info struct {
+    CPU *cpu.Info `json:"cpu"`
+    Mem *mem.Info `json:"mem"`
+}
 ```
-ExecCmdFields returns fields from output.
+Info structure for information a system.
 
 
-## func LoadFileFields
+
+
+
+
+
+
+
+### func GetInfo
 ``` go
-func LoadFileFields(fn string, del string, fields []string) (map[string]string, error)
+func GetInfo() (Info, error)
 ```
-LoadFileFields returns fields from file.
+GetInfo return information about a system.
+
 
 
 
