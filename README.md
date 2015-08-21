@@ -149,7 +149,7 @@ type Info struct {
     Version string `json:"version"`
 }
 ```
-Info structure for information about a systems operating system.
+Info structure for information about the operating system.
 
 
 
@@ -163,7 +163,7 @@ Info structure for information about a systems operating system.
 ``` go
 func GetInfo() (Info, error)
 ```
-GetInfo return information about a systems memory.
+GetInfo return information about the operating system.
 
 
 

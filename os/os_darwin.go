@@ -6,7 +6,7 @@ import (
 	"github.com/mickep76/hwinfo/common"
 )
 
-// GetInfo return information about a systems memory.
+// GetInfo return information about the operating system.
 func GetInfo() (Info, error) {
 	fields := []string{
 		"ProductName",
