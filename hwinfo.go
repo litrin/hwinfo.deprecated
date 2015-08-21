@@ -9,6 +9,7 @@ import (
 type Info struct {
 	CPU *cpu.Info `json:"cpu"`
 	Mem *mem.Info `json:"mem"`
+	OS  *os.Info  `json:"os"`
 }
 
 // GetInfo return information about a system.
