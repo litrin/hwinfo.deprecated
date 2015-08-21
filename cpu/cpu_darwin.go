@@ -43,6 +43,7 @@ func GetInfo() (Info, error) {
 	c.Sockets = c.Physical / c.CoresPerSocket
 	c.ThreadsPerCore = c.Logical / c.Sockets / c.CoresPerSocket
 	c.Flags = strings.ToLower(o["cpu_flags"])
+	c.Model = o["machdep.cpu.brand_string"]
 
 	return c, nil
 }
