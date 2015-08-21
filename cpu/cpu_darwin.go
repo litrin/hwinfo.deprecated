@@ -3,13 +3,13 @@
 package cpu
 
 import (
-	"common"
-	common "github.com/mickep76/hwinfo/common"
+	"github.com/mickep76/hwinfo/common"
+	"strconv"
 	"strings"
 )
 
-// Info return information about a systems CPU(s).
-func Info() (Info, error) {
+// GetInfo return information about a systems CPU(s).
+func GetInfo() (Info, error) {
 	fields := []string{
 		"machdep.cpu.core_count",
 		"hw.physicalcpu_max",
@@ -18,29 +18,31 @@ func Info() (Info, error) {
 		"machdep.cpu.features",
 	}
 
-	c := CPUInfo{}
+	c := Info{}
 
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", fields)
 	if err != nil {
-		return CPUInfo, err
+		return Info{}, err
 	}
 
-	c.CoresPerSocket, err = strconv.ParseInt(o["machdep.cpu.core_count"], 10, 0)
+	c.CoresPerSocket, err = strconv.Atoi(o["machdep.cpu.core_count"])
 	if err != nil {
-		return CPUInfo, err
+		return Info{}, err
 	}
 
-	c.Physical, err = strconv.ParseInt(o["hw.physicalcpu_max"], 10, 0)
+	c.Physical, err = strconv.Atoi(o["hw.physicalcpu_max"])
 	if err != nil {
-		return CPUInfo, err
+		return Info{}, err
 	}
 
-	c.Logical, err = strconv.ParseInt(o["hw.logicalcpu_max"], 10, 0)
+	c.Logical, err = strconv.Atoi(o["hw.logicalcpu_max"])
 	if err != nil {
-		return CPUInfo, err
+		return Info{}, err
 	}
 
 	c.Sockets = c.Physical / c.CoresPerSocket
 	c.ThreadsPerCore = c.Logical / c.Sockets / c.CoresPerSocket
 	c.Flags = strings.ToLower(o["cpu_flags"])
+
+	return c, nil
 }
