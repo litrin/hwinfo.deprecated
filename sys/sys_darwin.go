@@ -3,7 +3,6 @@
 package sys
 
 import (
-	"fmt"
 	"github.com/mickep76/hwinfo/common"
 )
 
@@ -16,13 +15,11 @@ func GetInfo() (Info, error) {
 		"Boot ROM Version",
 		"SMC Version",
 	}
-	fmt.Printf("%v\n\n", fields)
 
 	i := Info{}
 	i.Manufacturer = "Apple Inc."
 
 	o, err := common.ExecCmdFields("/usr/sbin/system_profiler", []string{"SPHardwareDataType"}, ":", fields)
-	fmt.Printf("%v\n\n", o)
 	if err != nil {
 		return Info{}, err
 	}
