@@ -52,7 +52,7 @@ func parseFields(o string, del string, fields []string) (map[string]string, erro
 		}
 
 		for _, f := range fields {
-			if strings.HasPrefix(line, f) {
+			if strings.HasPrefix(strings.TrimLeft(line, " \t"), f) {
 				r[f] = strings.Trim(strings.Join(vals[1:], " "), " \t")
 			}
 		}
