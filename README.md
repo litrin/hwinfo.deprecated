@@ -11,10 +11,11 @@
 ## type Info
 ``` go
 type Info struct {
-    CPU *cpu.Info `json:"cpu"`
-    Mem *mem.Info `json:"mem"`
-    OS  *os.Info  `json:"os"`
-    Sys *sys.Info `json:"sys"`
+    Hostname string     `json:"hostname"`
+    CPU      *cpu.Info  `json:"cpu"`
+    Mem      *mem.Info  `json:"mem"`
+    OS       *hwos.Info `json:"os"`
+    Sys      *sys.Info  `json:"sys"`
 }
 ```
 Info structure for information a system.
@@ -146,8 +147,10 @@ GetInfo return information about a systems memory.
 ## type Info
 ``` go
 type Info struct {
-    Product string `json:"product"`
-    Version string `json:"version"`
+    Kernel         string `json:"kernel"`
+    KernelVersion  string `json:"kernel_version"`
+    Product        string `json:"product"`
+    ProductVersion string `json:"product_version"`
 }
 ```
 Info structure for information about the operating system.
@@ -190,8 +193,8 @@ GetInfo return information about the operating system.
 ``` go
 type Info struct {
     Manufacturer   string `json:"manufacturer"`
-    Model          string `json:"model"`
-    ModelVersion   string `json:"model_version"`
+    Product        string `json:"product"`
+    ProductVersion string `json:"product_version"`
     SerialNumber   string `json:"serial_number"`
     BIOSVendor     string `json:"bios_vendor,omitempty"`
     BIOSDate       string `json:"bios_date,omitempty"`

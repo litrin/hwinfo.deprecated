@@ -26,8 +26,8 @@ func GetInfo() (Info, error) {
 	}
 
 	i.Manufacturer = o["chassis_vendor"]
-	i.Model = o["product_name"]
-	i.ModelVersion = o["product_version"]
+	i.Product = o["product_name"]
+	i.ProductVersion = o["product_version"]
 	//	i.SerialNumber = o["product_serial"]
 	i.BIOSVendor = o["bios_vendor"]
 	i.BIOSDate = o["bios_date"]

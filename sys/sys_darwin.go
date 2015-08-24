@@ -24,8 +24,8 @@ func GetInfo() (Info, error) {
 		return Info{}, err
 	}
 
-	i.Model = o["Model Name"]
-	i.ModelVersion = o["Model Identifier"]
+	i.Product = o["Model Name"]
+	i.ProductVersion = o["Model Identifier"]
 	i.SerialNumber = o["Serial Number"]
 	i.BootROMVersion = o["Boot ROM Version"]
 	i.SMCVersion = o["SMC Version"]

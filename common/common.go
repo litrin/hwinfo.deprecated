@@ -23,7 +23,7 @@ func LoadFiles(files []string) (map[string]string, error) {
 			return map[string]string{}, err
 		}
 
-		r[path.Base(fn)] = strings.Trim(string(o), "\n")
+		r[path.Base(fn)] = strings.TrimRight(string(o), "\n")
 	}
 
 	return r, nil
@@ -46,6 +46,16 @@ func LoadFileFields(fn string, del string, fields []string) (map[string]string, 
 	}
 
 	return r, nil
+}
+
+// ExecCmd returns output.
+func ExecCmd(cmd string, args []string) (string, error) {
+	o, err := exec.Command(cmd, args...).Output()
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimRight(string(o), "\n"), err
 }
 
 // ExecCmdFields returns fields from output.

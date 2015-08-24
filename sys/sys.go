@@ -3,8 +3,8 @@ package sys
 // Info structure for information about a system.
 type Info struct {
 	Manufacturer   string `json:"manufacturer"`
-	Model          string `json:"model"`
-	ModelVersion   string `json:"model_version"`
+	Product        string `json:"product"`
+	ProductVersion string `json:"product_version"`
 	SerialNumber   string `json:"serial_number"`
 	BIOSVendor     string `json:"bios_vendor,omitempty"`
 	BIOSDate       string `json:"bios_date,omitempty"`
