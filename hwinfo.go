@@ -3,6 +3,7 @@ package hwinfo
 import (
 	"github.com/mickep76/hwinfo/cpu"
 	"github.com/mickep76/hwinfo/mem"
+	"github.com/mickep76/hwinfo/netinfo"
 	hwos "github.com/mickep76/hwinfo/os"
 	"github.com/mickep76/hwinfo/sys"
 	"os"
@@ -10,11 +11,12 @@ import (
 
 // Info structure for information a system.
 type Info struct {
-	Hostname string     `json:"hostname"`
-	CPU      *cpu.Info  `json:"cpu"`
-	Mem      *mem.Info  `json:"memory"`
-	OS       *hwos.Info `json:"os"`
-	Sys      *sys.Info  `json:"system"`
+	Hostname string          `json:"hostname"`
+	CPU      *cpu.Info       `json:"cpu"`
+	Mem      *mem.Info       `json:"memory"`
+	OS       *hwos.Info      `json:"os"`
+	Sys      *sys.Info       `json:"system"`
+	Net      *[]netinfo.Info `json:"network"`
 }
 
 // GetInfo return information about a system.
@@ -50,6 +52,12 @@ func GetInfo() (Info, error) {
 		return Info{}, err
 	}
 	h.Sys = &s
+
+	n, err := netinfo.GetInfo()
+	if err != nil {
+		return Info{}, err
+	}
+	h.Net = &n
 
 	return h, nil
 }
