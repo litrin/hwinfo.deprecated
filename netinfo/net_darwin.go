@@ -4,7 +4,7 @@ package netinfo
 
 import (
 	//	"github.com/mickep76/hwinfo/common"
-	"fmt"
+	//	"fmt"
 	"net"
 )
 
@@ -29,7 +29,7 @@ func GetInfo() ([]Info, error) {
 
 		ia := []string{}
 		for _, addr := range addrs {
-			ia = append(ia, fmt.Sprintln(addr))
+			ia = append(ia, addr.String())
 		}
 
 		i = append(i, Info{
