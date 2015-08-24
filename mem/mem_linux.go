@@ -5,6 +5,7 @@ package mem
 import (
 	"github.com/mickep76/hwinfo/common"
 	"strconv"
+	"strings"
 )
 
 // GetInfo return information about a systems memory.
@@ -20,7 +21,7 @@ func GetInfo() (Info, error) {
 		return Info{}, err
 	}
 
-	i.TotalKB, err = strconv.Atoi(o["MemTotal"])
+	i.TotalKB, err = strconv.Atoi(strings.TrimRight(o["MemTotal"], " kB"))
 	if err != nil {
 		return Info{}, err
 	}

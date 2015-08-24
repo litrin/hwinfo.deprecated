@@ -5,8 +5,29 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 )
+
+// LoadFiles returns field from multiple files.
+func LoadFiles(files []string) (map[string]string, error) {
+	r := make(map[string]string)
+
+	for _, fn := range files {
+		if _, err := os.Stat(fn); os.IsNotExist(err) {
+			return map[string]string{}, fmt.Errorf("file doesn't exist: %s", fn)
+		}
+
+		o, err := ioutil.ReadFile(fn)
+		if err != nil {
+			return map[string]string{}, err
+		}
+
+		r[path.Base(fn)] = strings.Trim(string(o), "\n")
+	}
+
+	return r, nil
+}
 
 // LoadFileFields returns fields from file.
 func LoadFileFields(fn string, del string, fields []string) (map[string]string, error) {
