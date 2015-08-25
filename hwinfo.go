@@ -13,10 +13,10 @@ import (
 type Info struct {
 	Hostname string        `json:"hostname"`
 	CPU      *cpuinfo.Info `json:"cpu"`
-	Mem      *meminfo.Info `json:"mem"`
+	Mem      *meminfo.Info `json:"memory"`
 	OS       *osinfo.Info  `json:"os"`
-	Sys      *sysinfo.Info `json:"sys"`
-	Net      *netinfo.Info `json:"net"`
+	Sys      *sysinfo.Info `json:"system"`
+	Net      *netinfo.Info `json:"network"`
 }
 
 // GetInfo return information about a system.
