@@ -5,6 +5,7 @@ import (
 	"github.com/mickep76/hwinfo/meminfo"
 	"github.com/mickep76/hwinfo/netinfo"
 	"github.com/mickep76/hwinfo/osinfo"
+	"github.com/mickep76/hwinfo/pciinfo"
 	"github.com/mickep76/hwinfo/sysinfo"
 	"os"
 )
@@ -17,6 +18,7 @@ type Info struct {
 	OS       *osinfo.Info  `json:"os"`
 	Sys      *sysinfo.Info `json:"system"`
 	Net      *netinfo.Info `json:"network"`
+	PCI      *pciinfo.Info `json:"pci"`
 }
 
 // GetInfo return information about a system.
@@ -58,6 +60,12 @@ func GetInfo() (Info, error) {
 		return Info{}, err
 	}
 	h.Net = &n
+
+	p, err := pciinfo.GetInfo()
+	if err != nil {
+		return Info{}, err
+	}
+	h.PCI = &p
 
 	return h, nil
 }
