@@ -10,14 +10,14 @@ import (
 )
 
 type PCI struct {
-	BusNum     string
-	DeviceNum  string
-	DeviceFunc string
-	Class      string
-	VendorID   string
-	DeviceID   string
-	VendorName string
-	DeviceName string
+	BusNum     string `json:"bus_number"`
+	DeviceNum  string `json:"device_number"`
+	DeviceFunc string `json:"device_function"`
+	Class      string `json:"class"`
+	VendorID   string `json:"vendor_id"`
+	DeviceID   string `json:"device_id"`
+	VendorName string `json:"vendor_name"`
+	DeviceName string `json:"device_name"`
 }
 
 // Info structure for information about a systems memory.
@@ -25,7 +25,7 @@ type Info struct {
 	PCI []PCI `json:"pci"`
 }
 
-// TODO: Cache PCI database
+// TODO: Cache PCI database as a map[string]string
 func getPCIVendor(vendorID string, deviceID string) (string, string, error) {
 	fn := "/usr/share/hwdata/pci.ids"
 	if _, err := os.Stat(fn); os.IsNotExist(err) {
