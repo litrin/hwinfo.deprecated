@@ -40,9 +40,9 @@ func GetInfo() (Info, error) {
 	}
 
 	for _, intf := range intfs {
-		//		if intf.Name == "lo" || intf.Name == "lo0" {
-		//			continue
-		//		}
+		if intf.Flags&net.FlagLoopback != 0 {
+			continue
+		}
 
 		addrs, err := intf.Addrs()
 		if err != nil {
@@ -57,6 +57,19 @@ func GetInfo() (Info, error) {
 
 		for _, addr := range addrs {
 			nintf.IPAddr = append(nintf.IPAddr, addr.String())
+		}
+
+		if intf.Flags&net.FlagUp != 0 {
+			nintf.Flags = append(nintf.Flags, "up")
+		}
+		if intf.Flags&net.FlagBroadcast != 0 {
+			nintf.Flags = append(nintf.Flags, "broadcast")
+		}
+		if intf.Flags&net.FlagPointToPoint != 0 {
+			nintf.Flags = append(nintf.Flags, "pointtopoint")
+		}
+		if intf.Flags&net.FlagMulticast != 0 {
+			nintf.Flags = append(nintf.Flags, "multicast")
 		}
 
 		switch runtime.GOOS {
@@ -76,9 +89,9 @@ func GetInfo() (Info, error) {
 
 	switch runtime.GOOS {
 	case "linux":
-		o, err := common.ExecCmdFields("/usr/bin/onload", []string{"--version"}, ":", []string{"Kernel module"})
+		o, _ := common.ExecCmdFields("/usr/bin/onload", []string{"--version"}, ":", []string{"Kernel module"})
 		if err != nil {
-			return Info{}, err
+			//			return Info{}, err
 		}
 
 		info.OnloadVersion = o["Kernel module"]
