@@ -1,9 +1,11 @@
 package netinfo
 
 import (
+	"fmt"
 	"github.com/mickep76/hwinfo/common"
 	"net"
 	"runtime"
+	"strings"
 )
 
 // Info structure for information about a systems network interfaces.
@@ -16,6 +18,8 @@ type Interface struct {
 	Driver          string   `json:"driver,omitempty"`
 	DriverVersion   string   `json:"driver_version,omitempty"`
 	FirmwareVersion string   `json:"firmware_version,omitempty"`
+	PCIBus          string   `json:"pci_bus,omitempty"`
+	PCIBusURL       string   `json:"pci_bus_url,omitempty"`
 }
 
 // Info structure for information about a systems network.
@@ -30,6 +34,7 @@ func GetInfo() (Info, error) {
 		"driver",
 		"version",
 		"firmware-version",
+		"bus-info",
 	}
 
 	info := Info{}
@@ -87,6 +92,10 @@ func GetInfo() (Info, error) {
 			nintf.Driver = o["driver"]
 			nintf.DriverVersion = o["version"]
 			nintf.FirmwareVersion = o["firmware-version"]
+			if strings.HasPrefix(o["bus-info"], "0000:") {
+				nintf.PCIBus = o["bus-info"]
+				nintf.PCIBusURL = fmt.Sprintf("/pci/%v", o["bus-info"])
+			}
 		}
 
 		info.Interfaces = append(info.Interfaces, nintf)
