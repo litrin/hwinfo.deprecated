@@ -83,7 +83,7 @@ func GetInfo() (Info, error) {
 			}
 
 			nintf.Driver = o["driver"]
-			nintf.DriverVersion = o["driver"]
+			nintf.DriverVersion = o["version"]
 			nintf.FirmwareVersion = o["firmware-version"]
 		}
 
