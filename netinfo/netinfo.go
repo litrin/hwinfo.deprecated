@@ -6,72 +6,83 @@ import (
 	"runtime"
 )
 
-// Info structure for information about a systems memory.
-type Info struct {
+// Info structure for information about a systems network interfaces.
+type Interface struct {
 	Name            string   `json:"name"`
 	MTU             int      `json:"mtu"`
 	IPAddr          []string `json:"ipaddr"`
 	HWAddr          string   `json:"hwaddr"`
+	Flags           []string `json:"flags"`
 	Driver          string   `json:"driver,omitempty"`
 	DriverVersion   string   `json:"driver_version,omitempty"`
 	FirmwareVersion string   `json:"firmware_version,omitempty"`
 }
 
+// Info structure for information about a systems network.
+type Info struct {
+	Interfaces    []Interface `json:"interfaces"`
+	OnloadVersion string      `json:"onload_version,omitempty"`
+}
+
 // GetInfo return information about a systems memory.
-func GetInfo() ([]Info, error) {
+func GetInfo() (Info, error) {
 	fields := []string{
 		"driver",
 		"version",
 		"firmware-version",
 	}
 
-	i := []Info{}
+	info := Info{}
 
-	ifs, err := net.Interfaces()
+	intfs, err := net.Interfaces()
 	if err != nil {
-		return []Info{}, err
+		return Info{}, err
 	}
 
-	for _, v := range ifs {
-		if v.Name == "lo" || v.Name == "lo0" {
-			continue
-		}
+	for _, intf := range intfs {
+		//		if intf.Name == "lo" || intf.Name == "lo0" {
+		//			continue
+		//		}
 
-		addrs, err := v.Addrs()
+		addrs, err := intf.Addrs()
 		if err != nil {
-			return []Info{}, err
+			return Info{}, err
 		}
 
-		ia := []string{}
+		nintf := Interface{
+			Name:   intf.Name,
+			HWAddr: intf.HardwareAddr.String(),
+			MTU:    intf.MTU,
+		}
+
 		for _, addr := range addrs {
-			ia = append(ia, addr.String())
+			nintf.IPAddr = append(nintf.IPAddr, addr.String())
 		}
 
 		switch runtime.GOOS {
 		case "linux":
-			o, err := common.ExecCmdFields("/usr/sbin/ethtool", []string{"-i", v.Name}, ":", fields)
+			o, err := common.ExecCmdFields("/usr/sbin/ethtool", []string{"-i", intf.Name}, ":", fields)
 			if err != nil {
-				return []Info{}, err
+				return Info{}, err
 			}
 
-			i = append(i, Info{
-				Name:            v.Name,
-				HWAddr:          v.HardwareAddr.String(),
-				MTU:             v.MTU,
-				IPAddr:          ia,
-				Driver:          o["driver"],
-				DriverVersion:   o["version"],
-				FirmwareVersion: o["firmware-version"],
-			})
-		case "darwin":
-			i = append(i, Info{
-				Name:   v.Name,
-				HWAddr: v.HardwareAddr.String(),
-				MTU:    v.MTU,
-				IPAddr: ia,
-			})
+			nintf.Driver = o["driver"]
+			nintf.DriverVersion = o["driver"]
+			nintf.FirmwareVersion = o["firmware-version"]
 		}
+
+		info.Interfaces = append(info.Interfaces, nintf)
 	}
 
-	return i, nil
+	switch runtime.GOOS {
+	case "linux":
+		o, err := common.ExecCmdFields("/usr/bin/onload", []string{"--version"}, ":", []string{"Kernel module"})
+		if err != nil {
+			return Info{}, err
+		}
+
+		info.OnloadVersion = o["Kernel module"]
+	}
+
+	return info, nil
 }
