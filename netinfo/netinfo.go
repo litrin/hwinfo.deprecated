@@ -43,6 +43,9 @@ func GetInfo() (Info, error) {
 		if intf.Flags&net.FlagLoopback != 0 {
 			continue
 		}
+		if intf.Flags&net.FlagUp == 0 {
+			continue
+		}
 
 		addrs, err := intf.Addrs()
 		if err != nil {
