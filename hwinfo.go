@@ -18,7 +18,7 @@ type Info struct {
 	OS       *osinfo.Info  `json:"os"`
 	Sys      *sysinfo.Info `json:"system"`
 	Net      *netinfo.Info `json:"network"`
-	PCI      *pciinfo.Info `json:"pci"`
+	PCI      *pciinfo.Info `json:"pci,omitempty"`
 }
 
 // GetInfo return information about a system.
