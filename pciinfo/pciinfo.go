@@ -27,6 +27,10 @@ type Info struct {
 
 // TODO: Cache PCI database as a map[string]string
 func getPCIVendor(vendorID string, deviceID string) (string, string, error) {
+
+	vendorID := strings.TrimLeft(vendorID, "0x")
+	deviceID := strings.TrimLeft(deviceID, "0x")
+
 	fn := "/usr/share/hwdata/pci.ids"
 	if _, err := os.Stat(fn); os.IsNotExist(err) {
 		return "", "", fmt.Errorf("file doesn't exist: %s", fn)
@@ -88,8 +92,8 @@ func GetInfo() (Info, error) {
 			return Info{}, err
 		}
 
-		vendorID := strings.TrimLeft(o["vendor"], "0x")
-		deviceID := strings.TrimLeft(o["device"], "0x")
+		vendorID := o["vendor"]
+		deviceID := o["device"]
 		vendor, device, err := getPCIVendor(vendorID, deviceID)
 
 		i.PCI = append(i.PCI, PCI{
