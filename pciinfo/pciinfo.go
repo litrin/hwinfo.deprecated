@@ -28,8 +28,8 @@ type Info struct {
 // TODO: Cache PCI database as a map[string]string
 func getPCIVendor(vendorID string, deviceID string) (string, string, error) {
 
-	vendorID := strings.TrimLeft(vendorID, "0x")
-	deviceID := strings.TrimLeft(deviceID, "0x")
+	vendorID = strings.Replace(vendorID, "0x", "", 1)
+	deviceID = strings.Replace(deviceID, "0x", "", 1)
 
 	fn := "/usr/share/hwdata/pci.ids"
 	if _, err := os.Stat(fn); os.IsNotExist(err) {
@@ -51,6 +51,10 @@ func getPCIVendor(vendorID string, deviceID string) (string, string, error) {
 
 		id := strings.Trim(vals[0], " \t")
 		val := strings.Trim(vals[1], " ")
+
+		if vendor == "Solarflare Communications" {
+			fmt.Println(line, "|", id, "|", val, "|", deviceID)
+		}
 
 		if strings.LastIndex(line, "\t") == -1 && id == vendorID {
 			vendor = val
