@@ -7,20 +7,22 @@ import (
 	"github.com/mickep76/hwinfo/netinfo"
 	"github.com/mickep76/hwinfo/osinfo"
 	"github.com/mickep76/hwinfo/pciinfo"
+	"github.com/mickep76/hwinfo/routes"
 	"github.com/mickep76/hwinfo/sysinfo"
 	"os"
 )
 
 // Info structure for information a system.
 type Info struct {
-	Hostname string         `json:"hostname"`
-	CPU      *cpuinfo.Info  `json:"cpu"`
-	Memory   *meminfo.Info  `json:"memory"`
-	OS       *osinfo.Info   `json:"os"`
-	System   *sysinfo.Info  `json:"system"`
-	Network  *netinfo.Info  `json:"network"`
-	PCI      *pciinfo.Info  `json:"pci,omitempty"`
-	Disk     *diskinfo.Info `json:"disk"`
+	Hostname string          `json:"hostname"`
+	CPU      *cpuinfo.Info   `json:"cpu"`
+	Memory   *meminfo.Info   `json:"memory"`
+	OS       *osinfo.Info    `json:"os"`
+	System   *sysinfo.Info   `json:"system"`
+	Network  *netinfo.Info   `json:"network"`
+	PCI      *pciinfo.Info   `json:"pci,omitempty"`
+	Disk     *diskinfo.Info  `json:"disk"`
+	Routes   *[]routes.Route `json:"routes"`
 }
 
 // GetInfo return information about a system.
@@ -74,6 +76,12 @@ func GetInfo() (Info, error) {
 		return Info{}, err
 	}
 	i.Disk = &i8
+
+	i9, err := routes.Get()
+	if err != nil {
+		return Info{}, err
+	}
+	i.Routes = &i9
 
 	return i, nil
 }
