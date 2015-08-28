@@ -18,14 +18,14 @@ func Get() ([]Sysctl, error) {
 
 	for _, line := range strings.Split(string(o), "\n") {
 		vals := strings.Fields(line)
-		if len(vals) < 2 {
+		if len(vals) < 3 {
 			continue
 		}
 
 		s := Sysctl{}
 
 		s.Key = vals[0]
-		s.Value = vals[1]
+		s.Value = vals[2]
 
 		sysctl = append(sysctl, s)
 	}
