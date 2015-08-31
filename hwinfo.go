@@ -25,6 +25,7 @@ type Info struct {
 	Disk     *diskinfo.Info   `json:"disk"`
 	Routes   *[]routes.Route  `json:"routes"`
 	Sysctl   *[]sysctl.Sysctl `json:"sysctl"`
+	PhysVols *[]lvm.PhysVol   `json:"lvm"`
 }
 
 // GetInfo return information about a system.
