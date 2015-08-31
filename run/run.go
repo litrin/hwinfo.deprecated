@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	//	"github.com/mickep76/hwinfo"
-	"github.com/mickep76/hwinfo/lvm"
+	"github.com/mickep76/hwinfo"
 )
 
 func main() {
-	d, err := lvm.Get()
-	//	d, err := hwinfo.GetInfo()
+	d, err := hwinfo.GetInfo()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
