@@ -5,20 +5,18 @@ import (
 	"github.com/mickep76/hwinfo/memory"
 	"github.com/mickep76/hwinfo/network"
 	"github.com/mickep76/hwinfo/opsys"
-	"github.com/mickep76/hwinfo/routes"
 	"github.com/mickep76/hwinfo/system"
 	"os"
 )
 
-// HWHWInfo information.
-type HWHWInfo struct {
+// HWInfo information.
+type HWInfo struct {
 	Hostname string           `json:"hostname"`
 	CPU      *cpu.CPU         `json:"cpu"`
 	Memory   *memory.Memory   `json:"memory"`
 	OpSys    *opsys.OpSys     `json:"opsys"`
 	System   *system.System   `json:"system"`
 	Network  *network.Network `json:"network"`
-	Routes   *[]routes.Route  `json:"routes"`
 }
 
 // Get information about a system.
@@ -60,12 +58,6 @@ func Get() (HWInfo, error) {
 		return HWInfo{}, err
 	}
 	i.Network = &i6
-
-	i7, err := routes.Get()
-	if err != nil {
-		return HWInfo{}, err
-	}
-	i.Routes = &i7
 
 	return i, nil
 }

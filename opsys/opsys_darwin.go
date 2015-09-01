@@ -1,6 +1,6 @@
 // +build darwin
 
-package osinfo
+package opsys
 
 import (
 	"github.com/mickep76/hwinfo/common"
@@ -16,7 +16,7 @@ func Get() (OpSys, error) {
 		"ProductVersion",
 	})
 	if err != nil {
-		return Info{}, err
+		return OpSys{}, err
 	}
 
 	opsys.Kernel = runtime.GOOS

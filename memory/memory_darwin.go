@@ -1,6 +1,6 @@
 // +build darwin
 
-package meminfo
+package memory
 
 import (
 	"github.com/mickep76/hwinfo/common"
@@ -8,7 +8,7 @@ import (
 )
 
 // Get information about system memory.
-func GetInfo() (Memory, error) {
+func Get() (Memory, error) {
 	m := Memory{}
 
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", []string{
