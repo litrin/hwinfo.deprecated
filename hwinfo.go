@@ -2,16 +2,16 @@ package hwinfo
 
 import (
 	"github.com/mickep76/hwinfo/cpu"
-	"github.com/mickep76/hwinfo/disk"
+	"github.com/mickep76/hwinfo/disks"
 	"github.com/mickep76/hwinfo/lvm"
-	"github.com/mickep76/hwinfo/meminfo"
+	"github.com/mickep76/hwinfo/memory"
 	"github.com/mickep76/hwinfo/mounts"
-	"github.com/mickep76/hwinfo/netinfo"
+	"github.com/mickep76/hwinfo/network"
 	"github.com/mickep76/hwinfo/osinfo"
 	"github.com/mickep76/hwinfo/pciinfo"
 	"github.com/mickep76/hwinfo/routes"
 	"github.com/mickep76/hwinfo/sysctl"
-	"github.com/mickep76/hwinfo/sysinfo"
+	"github.com/mickep76/hwinfo/system"
 	"os"
 )
 
@@ -19,12 +19,12 @@ import (
 type Info struct {
 	Hostname string           `json:"hostname"`
 	CPU      *cpu.CPU         `json:"cpu"`
-	Memory   *meminfo.Info    `json:"memory"`
+	Memory   *memory.Memory   `json:"memory"`
 	OS       *osinfo.Info     `json:"os"`
-	System   *sysinfo.Info    `json:"system"`
-	Network  *netinfo.Info    `json:"network"`
+	System   *system.System   `json:"system"`
+	Network  *network.Network `json:"network"`
 	PCI      *pciinfo.Info    `json:"pci,omitempty"`
-	Disks    *disk.Disk       `json:"disks"`
+	Disks    *[]disks.Disk    `json:"disks"`
 	Routes   *[]routes.Route  `json:"routes"`
 	Sysctl   *[]sysctl.Sysctl `json:"sysctl"`
 	LVM      *lvm.LVM         `json:"lvm"`
@@ -47,7 +47,7 @@ func GetInfo() (Info, error) {
 	}
 	i.CPU = &i2
 
-	i3, err := meminfo.GetInfo()
+	i3, err := memory.Get()
 	if err != nil {
 		return Info{}, err
 	}
@@ -59,13 +59,13 @@ func GetInfo() (Info, error) {
 	}
 	i.OS = &i4
 
-	i5, err := sysinfo.GetInfo()
+	i5, err := system.Get()
 	if err != nil {
 		return Info{}, err
 	}
 	i.System = &i5
 
-	i6, err := netinfo.GetInfo()
+	i6, err := network.Get()
 	if err != nil {
 		return Info{}, err
 	}
