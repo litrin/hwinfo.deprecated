@@ -1,8 +1,8 @@
 package hwinfo
 
 import (
-	"github.com/mickep76/hwinfo/cpuinfo"
-	"github.com/mickep76/hwinfo/diskinfo"
+	"github.com/mickep76/hwinfo/cpu"
+	"github.com/mickep76/hwinfo/disk"
 	"github.com/mickep76/hwinfo/lvm"
 	"github.com/mickep76/hwinfo/meminfo"
 	"github.com/mickep76/hwinfo/mounts"
@@ -18,13 +18,13 @@ import (
 // Info structure for information a system.
 type Info struct {
 	Hostname string           `json:"hostname"`
-	CPU      *cpuinfo.Info    `json:"cpu"`
+	CPU      *cpu.CPU         `json:"cpu"`
 	Memory   *meminfo.Info    `json:"memory"`
 	OS       *osinfo.Info     `json:"os"`
 	System   *sysinfo.Info    `json:"system"`
 	Network  *netinfo.Info    `json:"network"`
 	PCI      *pciinfo.Info    `json:"pci,omitempty"`
-	Disk     *diskinfo.Info   `json:"disk"`
+	Disks    *disk.Disk       `json:"disks"`
 	Routes   *[]routes.Route  `json:"routes"`
 	Sysctl   *[]sysctl.Sysctl `json:"sysctl"`
 	LVM      *lvm.LVM         `json:"lvm"`
@@ -41,7 +41,7 @@ func GetInfo() (Info, error) {
 	}
 	i.Hostname = host
 
-	i2, err := cpuinfo.GetInfo()
+	i2, err := cpu.Get()
 	if err != nil {
 		return Info{}, err
 	}
@@ -77,11 +77,11 @@ func GetInfo() (Info, error) {
 	}
 	i.PCI = &i7
 
-	i8, err := diskinfo.GetInfo()
+	i8, err := disks.Get()
 	if err != nil {
 		return Info{}, err
 	}
-	i.Disk = &i8
+	i.Disks = &i8
 
 	i9, err := routes.Get()
 	if err != nil {
