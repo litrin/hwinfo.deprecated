@@ -7,8 +7,8 @@ import (
 	"github.com/mickep76/hwinfo/memory"
 	"github.com/mickep76/hwinfo/mounts"
 	"github.com/mickep76/hwinfo/network"
-	"github.com/mickep76/hwinfo/osinfo"
-	"github.com/mickep76/hwinfo/pciinfo"
+	"github.com/mickep76/hwinfo/opsys"
+	"github.com/mickep76/hwinfo/pci"
 	"github.com/mickep76/hwinfo/routes"
 	"github.com/mickep76/hwinfo/sysctl"
 	"github.com/mickep76/hwinfo/system"
@@ -20,10 +20,10 @@ type Info struct {
 	Hostname string           `json:"hostname"`
 	CPU      *cpu.CPU         `json:"cpu"`
 	Memory   *memory.Memory   `json:"memory"`
-	OS       *osinfo.Info     `json:"os"`
+	OpSys    *opsys.OpSys     `json:"opsys"`
 	System   *system.System   `json:"system"`
 	Network  *network.Network `json:"network"`
-	PCI      *pciinfo.Info    `json:"pci,omitempty"`
+	PCI      *[]pci.PCI       `json:"pci,omitempty"`
 	Disks    *[]disks.Disk    `json:"disks"`
 	Routes   *[]routes.Route  `json:"routes"`
 	Sysctl   *[]sysctl.Sysctl `json:"sysctl"`
@@ -53,11 +53,11 @@ func GetInfo() (Info, error) {
 	}
 	i.Memory = &i3
 
-	i4, err := osinfo.GetInfo()
+	i4, err := opsys.Get()
 	if err != nil {
 		return Info{}, err
 	}
-	i.OS = &i4
+	i.OpSys = &i4
 
 	i5, err := system.Get()
 	if err != nil {
@@ -71,7 +71,7 @@ func GetInfo() (Info, error) {
 	}
 	i.Network = &i6
 
-	i7, err := pciinfo.GetInfo()
+	i7, err := pci.Get()
 	if err != nil {
 		return Info{}, err
 	}
