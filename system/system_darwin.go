@@ -1,13 +1,13 @@
 // +build darwin
 
-package sysinfo
+package system
 
 import (
 	"github.com/mickep76/hwinfo/common"
 )
 
 // Get information about a system.
-func GetInfo() (Info, error) {
+func Get() (System, error) {
 	s := System{}
 	s.Manufacturer = "Apple Inc."
 

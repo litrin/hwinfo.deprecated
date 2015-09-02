@@ -8,24 +8,18 @@
 
 
 
-## type Info
+## type HWInfo
 ``` go
-type Info struct {
+type HWInfo struct {
     Hostname string           `json:"hostname"`
-    CPU      *cpuinfo.Info    `json:"cpu"`
-    Memory   *meminfo.Info    `json:"memory"`
-    OS       *osinfo.Info     `json:"os"`
-    System   *sysinfo.Info    `json:"system"`
-    Network  *netinfo.Info    `json:"network"`
-    PCI      *pciinfo.Info    `json:"pci,omitempty"`
-    Disk     *diskinfo.Info   `json:"disk"`
-    Routes   *[]routes.Route  `json:"routes"`
-    Sysctl   *[]sysctl.Sysctl `json:"sysctl"`
-    LVM      *lvm.LVM         `json:"lvm"`
-    Mounts   *[]mounts.Mount  `json:"mounts"`
+    CPU      *cpu.CPU         `json:"cpu"`
+    Memory   *memory.Memory   `json:"memory"`
+    OpSys    *opsys.OpSys     `json:"opsys"`
+    System   *system.System   `json:"system"`
+    Network  *network.Network `json:"network"`
 }
 ```
-Info structure for information a system.
+HWInfo information.
 
 
 
@@ -35,11 +29,11 @@ Info structure for information a system.
 
 
 
-### func GetInfo
+### func Get
 ``` go
-func GetInfo() (Info, error)
+func Get() (HWInfo, error)
 ```
-GetInfo return information about a system.
+Get information about a system.
 
 
 
@@ -97,8 +91,8 @@ LoadFiles returns field from multiple files.
 
 - - -
 
-# cpuinfo
-    import "github.com/mickep76/hwinfo/cpuinfo"
+# cpu
+    import "github.com/mickep76/hwinfo/cpu"
 
 
 
@@ -106,9 +100,9 @@ LoadFiles returns field from multiple files.
 
 
 
-## type Info
+## type CPU
 ``` go
-type Info struct {
+type CPU struct {
     Model          string `json:"model"`
     Flags          string `json:"flags"`
     Logical        int    `json:"logical"`
@@ -118,7 +112,7 @@ type Info struct {
     ThreadsPerCore int    `json:"threads_per_core"`
 }
 ```
-Info structure for information about a systems CPU(s).
+CPU information.
 
 
 
@@ -128,11 +122,11 @@ Info structure for information about a systems CPU(s).
 
 
 
-### func GetInfo
+### func Get
 ``` go
-func GetInfo() (Info, error)
+func Get() (CPU, error)
 ```
-GetInfo return information about a systems CPU(s).
+Get information about system CPU(s).
 
 
 
@@ -145,8 +139,8 @@ GetInfo return information about a systems CPU(s).
 
 - - -
 
-# diskinfo
-    import "github.com/mickep76/hwinfo/diskinfo"
+# disks
+    import "github.com/mickep76/hwinfo/disks"
 
 
 
@@ -159,12 +153,10 @@ GetInfo return information about a systems CPU(s).
 type Disk struct {
     Device string `json:"device"`
     Name   string `json:"name"`
-    //	Major  int    `json:"major"`
-    //	Minor  int    `json:"minor"`
-    //	Blocks int    `json:"blocks"`
-    SizeGB int `json:"size_gb"`
+    SizeGB int    `json:"size_gb"`
 }
 ```
+Disk information.
 
 
 
@@ -173,28 +165,6 @@ type Disk struct {
 
 
 
-
-
-## type Info
-``` go
-type Info struct {
-    Disks []Disk `json:"disk"`
-}
-```
-Info structure for information about a systems memory.
-
-
-
-
-
-
-
-
-
-### func GetInfo
-``` go
-func GetInfo() (Info, error)
-```
 
 
 
@@ -214,21 +184,6 @@ func GetInfo() (Info, error)
 
 
 
-## func GetLogVols
-``` go
-func GetLogVols() ([]LogVol, error)
-```
-
-## func GetPhysVols
-``` go
-func GetPhysVols() ([]PhysVol, error)
-```
-
-## func GetVolGrps
-``` go
-func GetVolGrps() ([]VolGrp, error)
-```
-
 
 ## type LVM
 ``` go
@@ -245,11 +200,6 @@ type LVM struct {
 
 
 
-
-### func Get
-``` go
-func Get() (LVM, error)
-```
 
 
 
@@ -320,8 +270,8 @@ type VolGrp struct {
 
 - - -
 
-# meminfo
-    import "github.com/mickep76/hwinfo/meminfo"
+# memory
+    import "github.com/mickep76/hwinfo/memory"
 
 
 
@@ -329,13 +279,13 @@ type VolGrp struct {
 
 
 
-## type Info
+## type Memory
 ``` go
-type Info struct {
+type Memory struct {
     TotalGB int `json:"total_gb"`
 }
 ```
-Info structure for information about a systems memory.
+Memory information.
 
 
 
@@ -345,11 +295,11 @@ Info structure for information about a systems memory.
 
 
 
-### func GetInfo
+### func Get
 ``` go
-func GetInfo() (Info, error)
+func Get() (Memory, error)
 ```
-GetInfo return information about a systems memory.
+Get information about system memory.
 
 
 
@@ -369,11 +319,6 @@ GetInfo return information about a systems memory.
 
 
 
-
-## func Get
-``` go
-func Get() ([]Mount, error)
-```
 
 
 ## type Mount
@@ -403,37 +348,11 @@ type Mount struct {
 
 - - -
 
-# netinfo
-    import "github.com/mickep76/hwinfo/netinfo"
+# network
+    import "github.com/mickep76/hwinfo/network"
 
 
 
-
-
-
-
-## type Info
-``` go
-type Info struct {
-    Interfaces    []Interface `json:"interfaces"`
-    OnloadVersion string      `json:"onload_version,omitempty"`
-}
-```
-Info structure for information about a systems network.
-
-
-
-
-
-
-
-
-
-### func GetInfo
-``` go
-func GetInfo() (Info, error)
-```
-GetInfo return information about a systems memory.
 
 
 
@@ -471,6 +390,32 @@ Info structure for information about a systems network interfaces.
 
 
 
+## type Network
+``` go
+type Network struct {
+    Interfaces    []Interface `json:"interfaces"`
+    OnloadVersion string      `json:"onload_version,omitempty"`
+}
+```
+Info structure for information about a systems network.
+
+
+
+
+
+
+
+
+
+### func Get
+``` go
+func Get() (Network, error)
+```
+GetInfo return information about a systems memory.
+
+
+
+
 
 
 
@@ -479,8 +424,8 @@ Info structure for information about a systems network interfaces.
 
 - - -
 
-# osinfo
-    import "github.com/mickep76/hwinfo/osinfo"
+# opsys
+    import "github.com/mickep76/hwinfo/opsys"
 
 
 
@@ -488,16 +433,16 @@ Info structure for information about a systems network interfaces.
 
 
 
-## type Info
+## type OpSys
 ``` go
-type Info struct {
+type OpSys struct {
     Kernel         string `json:"kernel"`
     KernelVersion  string `json:"kernel_version"`
     Product        string `json:"product"`
     ProductVersion string `json:"product_version"`
 }
 ```
-Info structure for information about the operating system.
+OpSys information.
 
 
 
@@ -507,11 +452,11 @@ Info structure for information about the operating system.
 
 
 
-### func GetInfo
+### func Get
 ``` go
-func GetInfo() (Info, error)
+func Get() (OpSys, error)
 ```
-GetInfo return information about the operating system.
+Get information about the operating system.
 
 
 
@@ -524,37 +469,19 @@ GetInfo return information about the operating system.
 
 - - -
 
-# pciinfo
-    import "github.com/mickep76/hwinfo/pciinfo"
+# pci
+    import "github.com/mickep76/hwinfo/pci"
 
 
 
 
 
 
-
-## type Info
+## func Get
 ``` go
-type Info struct {
-    PCI []PCI `json:"pci"`
-}
+func Get() ([]PCI, error)
 ```
-Info structure for information about a systems memory.
-
-
-
-
-
-
-
-
-
-### func GetInfo
-``` go
-func GetInfo() (Info, error)
-```
-GetInfo return information about PCI devices.
-
+Get information about system PCI slots.
 
 
 
@@ -598,11 +525,6 @@ type PCI struct {
 
 
 
-
-## func Get
-``` go
-func Get() ([]Route, error)
-```
 
 
 ## type Route
@@ -657,11 +579,6 @@ Info structure for system routes.
 
 
 
-## func Get
-``` go
-func Get() ([]Sysctl, error)
-```
-
 
 ## type Sysctl
 ``` go
@@ -690,8 +607,8 @@ Sysctl structure for sysctl key/values.
 
 - - -
 
-# sysinfo
-    import "github.com/mickep76/hwinfo/sysinfo"
+# system
+    import "github.com/mickep76/hwinfo/system"
 
 
 
@@ -699,9 +616,9 @@ Sysctl structure for sysctl key/values.
 
 
 
-## type Info
+## type System
 ``` go
-type Info struct {
+type System struct {
     Manufacturer   string `json:"manufacturer"`
     Product        string `json:"product"`
     ProductVersion string `json:"product_version"`
@@ -713,7 +630,7 @@ type Info struct {
     SMCVersion     string `json:"smc_version,omitempty"`
 }
 ```
-Info structure for information about a system.
+System information.
 
 
 
@@ -723,11 +640,11 @@ Info structure for information about a system.
 
 
 
-### func GetInfo
+### func Get
 ``` go
-func GetInfo() (Info, error)
+func Get() (System, error)
 ```
-GetInfo return information about a systems memory.
+Get information about a system.
 
 
 
