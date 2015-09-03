@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 )
 
 type Layer struct {
+	Layer   string `json:"layer"`
 	Image   string `json:"image"`
 	Commit  string `json:"commit"`
 	Created string `json:"created"`
@@ -57,6 +60,9 @@ func Get() (Dock2Box, error) {
 		if err := json.Unmarshal(o, &layer); err != nil {
 			return Dock2Box{}, err
 		}
+
+		fn := path.Base(file)
+		layer.Layer = strings.TrimSuffix(fn, filepath.Ext(fn))
 
 		d2b.Layers = append(d2b.Layers, layer)
 	}
