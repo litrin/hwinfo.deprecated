@@ -5,6 +5,7 @@ package hwinfo
 import (
 	"github.com/mickep76/hwinfo/cpu"
 	"github.com/mickep76/hwinfo/disks"
+	"github.com/mickep76/hwinfo/dock2box"
 	"github.com/mickep76/hwinfo/lvm"
 	"github.com/mickep76/hwinfo/memory"
 	"github.com/mickep76/hwinfo/mounts"
@@ -20,19 +21,20 @@ import (
 
 // HWInfo information.
 type HWInfo struct {
-	Hostname      string           `json:"hostname"`
-	ShortHostname string           `json:"short_hostname"`
-	CPU           *cpu.CPU         `json:"cpu"`
-	Memory        *memory.Memory   `json:"memory"`
-	OpSys         *opsys.OpSys     `json:"opsys"`
-	System        *system.System   `json:"system"`
-	Network       *network.Network `json:"network"`
-	PCI           *[]pci.PCI       `json:"pci"`
-	Disks         *[]disks.Disk    `json:"disks"`
-	Routes        *[]routes.Route  `json:"routes"`
-	Sysctl        *[]sysctl.Sysctl `json:"sysctl"`
-	LVM           *lvm.LVM         `json:"lvm"`
-	Mounts        *[]mounts.Mount  `json:"mounts"`
+	Hostname      string             `json:"hostname"`
+	ShortHostname string             `json:"short_hostname"`
+	CPU           *cpu.CPU           `json:"cpu"`
+	Memory        *memory.Memory     `json:"memory"`
+	OpSys         *opsys.OpSys       `json:"opsys"`
+	System        *system.System     `json:"system"`
+	Network       *network.Network   `json:"network"`
+	PCI           *[]pci.PCI         `json:"pci"`
+	Disks         *[]disks.Disk      `json:"disks"`
+	Routes        *[]routes.Route    `json:"routes"`
+	Sysctl        *[]sysctl.Sysctl   `json:"sysctl"`
+	LVM           *lvm.LVM           `json:"lvm"`
+	Mounts        *[]mounts.Mount    `json:"mounts"`
+	Dock2Box      *dock2box.Dock2Box `json:"dock2box"`
 }
 
 // Get information about a system.
@@ -111,6 +113,11 @@ func Get() (HWInfo, error) {
 		return HWInfo{}, err
 	}
 	i.Mounts = &i12
+
+	// Don't bail just because Dock2Box is not available,
+	//  need a better way to handle this maybe use log package or return different error levels
+	i13, _ := dock2box.Get()
+	i.Dock2Box = &i13
 
 	return i, nil
 }
