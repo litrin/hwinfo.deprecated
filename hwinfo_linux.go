@@ -3,6 +3,9 @@
 package hwinfo
 
 import (
+	"os"
+	"strings"
+
 	"github.com/mickep76/hwinfo/cpu"
 	"github.com/mickep76/hwinfo/disks"
 	"github.com/mickep76/hwinfo/dock2box"
@@ -15,8 +18,6 @@ import (
 	"github.com/mickep76/hwinfo/routes"
 	"github.com/mickep76/hwinfo/sysctl"
 	"github.com/mickep76/hwinfo/system"
-	"os"
-	"strings"
 )
 
 // HWInfo information.
