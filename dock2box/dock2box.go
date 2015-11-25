@@ -17,8 +17,8 @@ type Layer struct {
 	Commit            string `json:"commit"`
 	Created           string `json:"created"`
 	CPU               string `json:"cpu"`
-	CPUFlags          string `json:"cpu_flags"`
-	KernelConfig      string `json:"kernel_config"`
+	CPUFlags          string `json:"cpuflags"`
+	KernelConfig      string `json:"kernelconfig"`
 	GCCVersion        string `json:"gcc_version"`
 	CFlags            string `json:"cflags"`
 	CFlagsMarchNative string `json:"cflags_march_native"`
