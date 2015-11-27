@@ -5,6 +5,7 @@ package hwinfo
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mickep76/hwinfo/cpu"
 	"github.com/mickep76/hwinfo/disks"
@@ -104,7 +105,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.CPU = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.memoryTTL) * time.Second)
 	if hwi.Memory == nil || hwi.last.Before(ttl) {
 		i, err := memory.Get()
@@ -114,8 +115,8 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.Memory = &i
 	}
 
-	ttl := now
-	ttl.Add(time.Duration(hwi.opsysTTL) * time.Second)
+	ttl = now
+	ttl.Add(time.Duration(hwi.opSysTTL) * time.Second)
 	if hwi.OpSys == nil || hwi.last.Before(ttl) {
 		i, err := opsys.Get()
 		if err != nil {
@@ -124,7 +125,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.OpSys = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.systemTTL) * time.Second)
 	if hwi.System == nil || hwi.last.Before(ttl) {
 		i, err := system.Get()
@@ -134,7 +135,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.System = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.networkTTL) * time.Second)
 	if hwi.Network == nil || hwi.last.Before(ttl) {
 		i, err := network.Get()
@@ -144,7 +145,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.Network = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.pciTTL) * time.Second)
 	if hwi.PCI == nil || hwi.last.Before(ttl) {
 		i, err := pci.Get()
@@ -154,7 +155,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.PCI = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.disksTTL) * time.Second)
 	if hwi.Disks == nil || hwi.last.Before(ttl) {
 		i, err := disks.Get()
@@ -164,7 +165,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.Disks = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.routesTTL) * time.Second)
 	if hwi.Routes == nil || hwi.last.Before(ttl) {
 		i, err := routes.Get()
@@ -174,7 +175,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.Routes = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.sysctlTTL) * time.Second)
 	if hwi.Sysctl == nil || hwi.last.Before(ttl) {
 		i, err := sysctl.Get()
@@ -184,7 +185,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.Sysctl = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.lvmTTL) * time.Second)
 	if hwi.LVM == nil || hwi.last.Before(ttl) {
 		i, err := lvm.Get()
@@ -194,7 +195,7 @@ func (hwi *HWInfo) GetTTL() error {
 		hwi.LVM = &i
 	}
 
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.mountsTTL) * time.Second)
 	if hwi.Mounts == nil || hwi.last.Before(ttl) {
 		i, err := mounts.Get()
@@ -206,14 +207,14 @@ func (hwi *HWInfo) GetTTL() error {
 
 	// Don't bail just because Dock2Box is not available,
 	//  need a better way to handle this maybe use log package or return different error levels
-	ttl := now
+	ttl = now
 	ttl.Add(time.Duration(hwi.dock2boxTTL) * time.Second)
 	if hwi.Dock2Box == nil || hwi.last.Before(ttl) {
 		i, _ := dock2box.Get()
 		hwi.Dock2Box = &i
 	}
 
-	return i, nil
+	return nil
 }
 
 // Get information about a system.
@@ -233,61 +234,61 @@ func (hwi *HWInfo) Get() error {
 
 	i3, err := memory.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.Memory = &i3
 
 	i4, err := opsys.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.OpSys = &i4
 
 	i5, err := system.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.System = &i5
 
 	i6, err := network.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.Network = &i6
 
 	i7, err := pci.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.PCI = &i7
 
 	i8, err := disks.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.Disks = &i8
 
 	i9, err := routes.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.Routes = &i9
 
 	i10, err := sysctl.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.Sysctl = &i10
 
 	i11, err := lvm.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.LVM = &i11
 
 	i12, err := mounts.Get()
 	if err != nil {
-		return HWInfo{}, err
+		return err
 	}
 	hwi.Mounts = &i12
 
@@ -296,5 +297,5 @@ func (hwi *HWInfo) Get() error {
 	i13, _ := dock2box.Get()
 	hwi.Dock2Box = &i13
 
-	return i, nil
+	return nil
 }

@@ -11,7 +11,7 @@ func main() {
 	d := hwinfo.NewHWInfo()
 	d.GetTTL()
 
-	fmt.Println(d)
+	//	fmt.Println(d)
 
 	b, err := json.MarshalIndent(d, "", "    ")
 	if err != nil {
