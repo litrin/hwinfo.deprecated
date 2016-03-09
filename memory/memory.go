@@ -12,17 +12,17 @@ type Memory interface {
 // New memory constructor.
 func New() *memory {
 	return &memory{
-		ttl: time.Duration(5) * time.Second,
+		TTL: 5,
 	}
 }
 
 // Get memory info.
 func (m *memory) Get() {
-	if m.last.IsZero() {
+	if m.Last.IsZero() {
 		m.get()
-		m.last = time.Now()
+		m.Last = time.Now()
 	} else {
-		expire := m.last.Add(m.ttl)
+		expire := m.Last.Add(time.Duration(m.TTL) * time.Second)
 		if expire.Before(time.Now()) {
 			m.get()
 		}

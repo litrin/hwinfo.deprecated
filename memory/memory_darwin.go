@@ -10,11 +10,10 @@ import (
 )
 
 type memory struct {
-	TotalKB int `json:"total_kb"`
-	TotalGB int `json:"total_gb"`
-
-	last time.Time     `json:"-"`
-	ttl  time.Duration `json:"-"`
+	TotalKB int       `json:"total_kb"`
+	TotalGB int       `json:"total_gb"`
+	Last    time.Time `json:"last"`
+	TTL     int       `json:"ttl_sec"`
 }
 
 // Get memory info.

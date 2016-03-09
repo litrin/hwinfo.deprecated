@@ -58,52 +58,76 @@ DirectMap1G:    60817408 kB
 */
 
 type memory struct {
-	TotalKB            int `json:"total_kb"`
-	TotalGB            int `json:"total_gb"`
-	FreeKB             int `json:"free_kb"`
-	FreeGB             int `json:"free_gb"`
-	AvailableKB        int `json:"available_kb"`
-	AvailableGB        int `json:"available_gb"`
-	CachedKB           int `json:"cached_kb"`
-	CachedGB           int `json:"cached_gb"`
-	SwapCachedKB       int `json:"swap_cached_kb"`
-	SwapCachedGB       int `json:"swap_cached_gb"`
-	ActiveKB           int `json:"active_kb"`
-	ActiveGB           int `json:"active_gb"`
-	InactiveKB         int `json:"inactive_kb"`
-	InactiveGB         int `json:"inactive_gb"`
-	UnevictableKB      int `json:"unevictable_kb"`
-	UnevictableGB      int `json:"unevictable_gb"`
-	MLockedKB          int `json:"mlocked_kb"`
-	MLockedGB          int `json:"mlocked_gb"`
-	SwapTotalKB        int `json:"swap_total_kb"`
-	SwapTotalGB        int `json:"swap_total_gb"`
-	SwapFreeKB         int `json:"swap_free_kb"`
-	SwapFreeGB         int `json:"swap_free_gb"`
-	DirtyKB            int `json:"dirty_kb"`
-	DirtyGB            int `json:"dirty_gb"`
-	WritebackKB        int `json:"writeback_kb"`
-	WritebackGB        int `json:"writeback_gb"`
-	AnonPagesKB        int `json:"anon_pages_kb"`
-	AnonPagesGB        int `json:"anon_pages_gb"`
-	MappedKB           int `json:"mapped_kb"`
-	MappedGB           int `json:"mapped_gb"`
-	ShmemKB            int `json:"shmem_kb"`
-	ShmemGB            int `json:"shmem_gb"`
-	SlabKB             int `json:"slab_kb"`
-	SlabGB             int `json:"slab_gb"`
-	SReclaimableKB     int `json:"sreclaimable_kb"`
-	SReclaimableGB     int `json:"sreclaimable_gb"`
-	CommittedActSizeKB int `json:"committed_act_size_kb"`
-	CommittedActSizeGB int `json:"committed_act_size_gb"`
-	HugePagesTot       int `json:"huge_pages_tot"`
-	HugePagesFree      int `json:"huge_pages_free"`
-	HugePagesRsvd      int `json:"huge_pages_rsvd"`
-	HugePagesSurp      int `json:"huge_pages_surp"`
-	HugePageSizeKB     int `json:"huge_pages_size_kb"`
+	TotalKB             int `json:"total_kb"`
+	TotalGB             int `json:"total_gb"`
+	FreeKB              int `json:"free_kb"`
+	FreeGB              int `json:"free_gb"`
+	AvailableKB         int `json:"available_kb"`
+	AvailableGB         int `json:"available_gb"`
+	CachedKB            int `json:"cached_kb"`
+	CachedGB            int `json:"cached_gb"`
+	SwapCachedKB        int `json:"swap_cached_kb"`
+	SwapCachedGB        int `json:"swap_cached_gb"`
+	ActiveKB            int `json:"active_kb"`
+	ActiveGB            int `json:"active_gb"`
+	InactiveKB          int `json:"inactive_kb"`
+	InactiveGB          int `json:"inactive_gb"`
+	UnevictableKB       int `json:"unevictable_kb"`
+	UnevictableGB       int `json:"unevictable_gb"`
+	MLockedKB           int `json:"m_locked_kb"`
+	MLockedGB           int `json:"m_locked_gb"`
+	SwapTotalKB         int `json:"swap_total_kb"`
+	SwapTotalGB         int `json:"swap_total_gb"`
+	SwapFreeKB          int `json:"swap_free_kb"`
+	SwapFreeGB          int `json:"swap_free_gb"`
+	DirtyKB             int `json:"dirty_kb"`
+	DirtyGB             int `json:"dirty_gb"`
+	WritebackKB         int `json:"writeback_kb"`
+	WritebackGB         int `json:"writeback_gb"`
+	AnonPagesKB         int `json:"anon_pages_kb"`
+	AnonPagesGB         int `json:"anon_pages_gb"`
+	MappedKB            int `json:"mapped_kb"`
+	MappedGB            int `json:"mapped_gb"`
+	ShmemKB             int `json:"shmem_kb"`
+	ShmemGB             int `json:"shmem_gb"`
+	SlabKB              int `json:"slab_kb"`
+	SlabGB              int `json:"slab_gb"`
+	SReclaimableKB      int `json:"s_reclaimable_kb"`
+	SReclaimableGB      int `json:"s_reclaimable_gb"`
+	SUnreclaimKB        int `json:"s_unreclaim_kb"`
+	SUnreclaimGB        int `json:"s_unreclaim_gb"`
+	KernelStackKB       int `json:"kernel_stack_kb"`
+	KernelStackGB       int `json:"kernel_stack_gb"`
+	PageTablesKB        int `json:"page_tables_kb"`
+	PageTablesGB        int `json:"page_tables_gb"`
+	NFSUnstableKB       int `json:"nfs_unstable_kb"`
+	NFSUnstableGB       int `json:"nfs_unstable_gb"`
+	BounceKB            int `json:"bounce_kb"`
+	BounceGB            int `json:"bounce_gb"`
+	WritebackTmpKB      int `json:"writeback_tmp_kb"`
+	WritebackTmpGB      int `json:"writeback_tmp_gb"`
+	CommitLimitKB       int `json:"commit_limit_kb"`
+	CommitLimitGB       int `json:"commit_limit_gb"`
+	CommittedASKB       int `json:"committed_a_s_kb"`
+	CommittedASGB       int `json:"committed_a_s_gb"`
+	VmallocTotalKB      int `json:"vmalloc_total_kb"`
+	VmallocTotalGB      int `json:"vmalloc_total_gb"`
+	VmallocUsedKB       int `json:"vmalloc_used_kb"`
+	VmallocUsedGB       int `json:"vmalloc_used_gb"`
+	VmallocChunkKB      int `json:"vmalloc_chunk_kb"`
+	VmallocChunkGB      int `json:"vmalloc_chunk_gb"`
+	HardwareCorruptedKB int `json:"hardware_corrupted_kb"`
+	HardwareCorruptedGB int `json:"hardware_corrupted_gb"`
+	AnonHugePagesKB     int `json:"anon_huge_pages_kb"`
+	AnonHugePagesGB     int `json:"anon_huge_pages_gb"`
+	HugePagesTot        int `json:"huge_pages_tot"`
+	HugePagesFree       int `json:"huge_pages_free"`
+	HugePagesRsvd       int `json:"huge_pages_rsvd"`
+	HugePagesSurp       int `json:"huge_pages_surp"`
+	HugePageSizeKB      int `json:"huge_pages_size_kb"`
 
-	last time.Time     `json:"-"`
-	ttl  time.Duration `json:"-"`
+	Last time.Time `json:"last"`
+	TTL  int       `json:"ttl_sec"`
 }
 
 // Get memory info.
@@ -127,8 +151,19 @@ func (m *memory) get() error {
 		"Shmem",
 		"Slab",
 		"SReclaimable",
-
+		"SUnreclaim",
+		"KernelStack",
+		"PageTables",
+		"NFS_Unstable",
+		"Bounce",
+		"WritebackTmp",
+		"CommitLimit",
 		"Committed_AS",
+		"VmallocTotal",
+		"VmallocUsed",
+		"VmallocChunk",
+		"HardwareCorrupted",
+		"AnonHugePages",
 		"HugePages_Total",
 		"HugePages_Free",
 		"HugePages_Rsvd",
@@ -265,12 +300,96 @@ func (m *memory) get() error {
 	}
 	m.SReclaimableGB = m.SReclaimableKB / 1024 / 1024
 
-	// Committed_AS
-	m.CommittedActSizeKB, err = strconv.Atoi(strings.TrimRight(o["Committed_AS"], " kB"))
+	// SUnreclaim
+	m.SUnreclaimKB, err = strconv.Atoi(strings.TrimRight(o["SUnreclaim"], " kB"))
 	if err != nil {
 		return err
 	}
-	m.CommittedActSizeGB = m.CommittedActSizeKB / 1024 / 1024
+	m.SUnreclaimGB = m.SUnreclaimKB / 1024 / 1024
+
+	// KernelStack
+	m.KernelStackKB, err = strconv.Atoi(strings.TrimRight(o["KernelStack"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.KernelStackGB = m.KernelStackKB / 1024 / 1024
+
+	// PageTables
+	m.PageTablesKB, err = strconv.Atoi(strings.TrimRight(o["PageTables"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.PageTablesGB = m.PageTablesKB / 1024 / 1024
+
+	// NFS_Unstable
+	m.NFSUnstableKB, err = strconv.Atoi(strings.TrimRight(o["NFS_Unstable"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.NFSUnstableGB = m.NFSUnstableKB / 1024 / 1024
+
+	// Bounce
+	m.BounceKB, err = strconv.Atoi(strings.TrimRight(o["Bounce"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.BounceGB = m.BounceKB / 1024 / 1024
+
+	// WritebackTmp
+	m.WritebackTmpKB, err = strconv.Atoi(strings.TrimRight(o["WritebackTmp"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.WritebackTmpGB = m.WritebackTmpKB / 1024 / 1024
+
+	// CommitLimit
+	m.CommitLimitKB, err = strconv.Atoi(strings.TrimRight(o["CommitLimit"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.CommitLimitGB = m.CommitLimitKB / 1024 / 1024
+
+	// Committed_AS
+	m.CommittedASKB, err = strconv.Atoi(strings.TrimRight(o["Committed_AS"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.CommittedASGB = m.CommittedASKB / 1024 / 1024
+
+	// VmallocTotal
+	m.VmallocTotalKB, err = strconv.Atoi(strings.TrimRight(o["VmallocTotal"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.VmallocTotalGB = m.VmallocTotalKB / 1024 / 1024
+
+	// VmallocUsed
+	m.VmallocUsedKB, err = strconv.Atoi(strings.TrimRight(o["VmallocUsed"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.VmallocUsedGB = m.VmallocUsedKB / 1024 / 1024
+
+	// VmallocChunk
+	m.VmallocChunkKB, err = strconv.Atoi(strings.TrimRight(o["VmallocChunk"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.VmallocChunkGB = m.VmallocChunkKB / 1024 / 1024
+
+	// HardwareCorrupted
+	m.HardwareCorruptedKB, err = strconv.Atoi(strings.TrimRight(o["HardwareCorrupted"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.HardwareCorruptedGB = m.HardwareCorruptedKB / 1024 / 1024
+
+	// AnonHugePages
+	m.AnonHugePagesKB, err = strconv.Atoi(strings.TrimRight(o["AnonHugePages"], " kB"))
+	if err != nil {
+		return err
+	}
+	m.AnonHugePagesGB = m.AnonHugePagesKB / 1024 / 1024
 
 	// HugePages_Total
 	m.HugePagesTot, err = strconv.Atoi(o["HugePages_Total"])
