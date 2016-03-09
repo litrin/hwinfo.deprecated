@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Get information about system memory.
+// Get memory info.
 func (m *memory) get() error {
 	o, err := common.LoadFileFields("/proc/meminfo", ":", []string{
 		"MemTotal",
@@ -26,35 +26,35 @@ func (m *memory) get() error {
 		return err
 	}
 
-	m.TotalGB, err = strconv.Atoi(strings.TrimRight(o["MemTotal"], " kB"))
+	m.TotalKB, err = strconv.Atoi(strings.TrimRight(o["MemTotal"], " kB"))
 	if err != nil {
 		return err
 	}
-	m.TotalGB = m.TotalGB / 1024 / 1024
+	m.TotalGB = m.TotalKB / 1024 / 1024
 
-	m.FreeGB, err = strconv.Atoi(strings.TrimRight(o["MemFree"], " kB"))
+	m.FreeKB, err = strconv.Atoi(strings.TrimRight(o["MemFree"], " kB"))
 	if err != nil {
 		return err
 	}
-	m.FreeGB = m.FreeGB / 1024 / 1024
+	m.FreeGB = m.FreeKB / 1024 / 1024
 
-	m.AvailableGB, err = strconv.Atoi(strings.TrimRight(o["MemAvailable"], " kB"))
+	m.AvailableKB, err = strconv.Atoi(strings.TrimRight(o["MemAvailable"], " kB"))
 	if err != nil {
 		return err
 	}
-	m.AvailableGB = m.AvailableGB / 1024 / 1024
+	m.AvailableGB = m.AvailableKB / 1024 / 1024
 
-	m.CachedGB, err = strconv.Atoi(strings.TrimRight(o["Cached"], " kB"))
+	m.CachedKB, err = strconv.Atoi(strings.TrimRight(o["Cached"], " kB"))
 	if err != nil {
 		return err
 	}
-	m.CachedGB = m.CachedGB / 1024 / 1024
+	m.CachedGB = m.CachedKB / 1024 / 1024
 
-	m.CommittedActSizeGB, err = strconv.Atoi(strings.TrimRight(o["Committed_AS"], " kB"))
+	m.CommittedActSizeKB, err = strconv.Atoi(strings.TrimRight(o["Committed_AS"], " kB"))
 	if err != nil {
 		return err
 	}
-	m.CommittedActSizeGB = m.CommittedActSizeGB / 1024 / 1024
+	m.CommittedActSizeGB = m.CommittedActSizeKB / 1024 / 1024
 
 	m.HugePagesTot, err = strconv.Atoi(o["HugePages_Total"])
 	if err != nil {
@@ -75,7 +75,6 @@ func (m *memory) get() error {
 	if err != nil {
 		return err
 	}
-	m.HugePageSizeKB = m.HugePageSizeKB
 
 	return nil
 }

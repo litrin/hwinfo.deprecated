@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-// Get information about system memory.
-func (m *memoryS) get() error {
+// Get memory info.
+func (m *memory) get() error {
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", []string{
 		"hw.memsize",
 	})
