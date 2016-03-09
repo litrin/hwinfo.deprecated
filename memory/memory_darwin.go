@@ -8,7 +8,7 @@ import (
 )
 
 // Get information about system memory.
-func (m *MemoryS) GetNoCache() error {
+func (m *memoryS) get() error {
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", []string{
 		"hw.memsize",
 	})

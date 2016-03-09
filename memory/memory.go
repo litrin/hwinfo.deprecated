@@ -1,6 +1,9 @@
 package memory
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Memory interface {
 	SetTTL(int)
@@ -19,21 +22,26 @@ type memory struct {
 	HugePagesSurp      int `json:"huge_pages_surp,omitempty""`
 	HugePageSizeKB     int `json:"huge_pages_size_kb,omitempty""`
 
-	last time.Time `json:"-"`
-	ttl  int       `json:"-"`
+	last time.Time     `json:"-"`
+	ttl  time.Duration `json:"-"`
 }
 
 // New memory constructor.
-func New() *Memory {
-	return &Memory{
-		ttl: 60 * 5,
+func New() *memory {
+	return &memory{
+		ttl: time.Duration(5) * time.Second,
 	}
 }
 
-func (m *MemoryS) Get() {
-	expire := m.last
-	expire.Add(time.Duration(m.ttl) * time.Second)
-	if expire.Before(time.Now()) {
-		m.GetNoCache()
+// Get memory info.
+func (m *memory) Get() {
+	if m.last.IsZero() {
+		m.get()
+		m.last = time.Now()
+	} else {
+		expire := m.last.Add(m.ttl)
+		if expire.Before(time.Now()) {
+			m.get()
+		}
 	}
 }

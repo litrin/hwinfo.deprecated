@@ -9,7 +9,7 @@ import (
 )
 
 // Get information about system memory.
-func (m *Memory) GetNoCache() error {
+func (m *memory) get() error {
 	o, err := common.LoadFileFields("/proc/meminfo", ":", []string{
 		"MemTotal",
 		"MemFree",
