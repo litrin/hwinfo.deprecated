@@ -3,9 +3,19 @@
 package memory
 
 import (
-	"github.com/mickep76/hwinfo/common"
 	"strconv"
+	"time"
+
+	"github.com/mickep76/hwinfo/common"
 )
+
+type memory struct {
+	TotalKB int `json:"total_kb"`
+	TotalGB int `json:"total_gb"`
+
+	last time.Time     `json:"-"`
+	ttl  time.Duration `json:"-"`
+}
 
 // Get memory info.
 func (m *memory) get() error {
@@ -16,11 +26,12 @@ func (m *memory) get() error {
 		return err
 	}
 
-	m.TotalGB, err = strconv.Atoi(o["hw.memsize"])
+	m.TotalKB, err = strconv.Atoi(o["hw.memsize"])
 	if err != nil {
 		return err
 	}
-	m.TotalGB = m.TotalGB / 1024 / 1024 / 1024
+	m.TotalKB = m.TotalKB / 1024
+	m.TotalGB = m.TotalKB / 1024 / 1024
 
 	return nil
 }
