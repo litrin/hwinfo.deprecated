@@ -9,9 +9,7 @@ import (
 )
 
 // Get information about system memory.
-func Get() (Memory, error) {
-	m := Memory{}
-
+func (m *Memory) GetNoCache() error {
 	o, err := common.LoadFileFields("/proc/meminfo", ":", []string{
 		"MemTotal",
 		"MemFree",
@@ -25,61 +23,59 @@ func Get() (Memory, error) {
 		"Hugepagesize",
 	})
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 
 	m.TotalGB, err = strconv.Atoi(strings.TrimRight(o["MemTotal"], " kB"))
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 	m.TotalGB = m.TotalGB / 1024 / 1024
 
 	m.FreeGB, err = strconv.Atoi(strings.TrimRight(o["MemFree"], " kB"))
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 	m.FreeGB = m.FreeGB / 1024 / 1024
 
 	m.AvailableGB, err = strconv.Atoi(strings.TrimRight(o["MemAvailable"], " kB"))
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 	m.AvailableGB = m.AvailableGB / 1024 / 1024
 
 	m.CachedGB, err = strconv.Atoi(strings.TrimRight(o["Cached"], " kB"))
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 	m.CachedGB = m.CachedGB / 1024 / 1024
 
 	m.CommittedActSizeGB, err = strconv.Atoi(strings.TrimRight(o["Committed_AS"], " kB"))
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 	m.CommittedActSizeGB = m.CommittedActSizeGB / 1024 / 1024
 
 	m.HugePagesTot, err = strconv.Atoi(o["HugePages_Total"])
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 
 	m.HugePagesFree, err = strconv.Atoi(o["HugePages_Free"])
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 
 	m.HugePagesRsvd, err = strconv.Atoi(o["HugePages_Rsvd"])
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 
 	m.HugePageSizeKB, err = strconv.Atoi(strings.TrimRight(o["Hugepagesize"], " kB"))
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 	m.HugePageSizeKB = m.HugePageSizeKB
 
-	/* Invalidate cache call / force */
-
-	return m, nil
+	return nil
 }

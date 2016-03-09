@@ -8,21 +8,19 @@ import (
 )
 
 // Get information about system memory.
-func Get() (Memory, error) {
-	m := Memory{}
-
+func (m *MemoryS) GetNoCache() error {
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", []string{
 		"hw.memsize",
 	})
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 
 	m.TotalGB, err = strconv.Atoi(o["hw.memsize"])
 	if err != nil {
-		return Memory{}, err
+		return err
 	}
 	m.TotalGB = m.TotalGB / 1024 / 1024 / 1024
 
-	return m, nil
+	return nil
 }
