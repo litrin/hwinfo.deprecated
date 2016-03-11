@@ -19,12 +19,12 @@ func (s *sysctl) get() error {
 			continue
 		}
 
-		sys := Sysctl{}
+		v := variable{}
 
-		sys.Key = vals[0]
-		sys.Value = vals[2]
+		v.Key = vals[0]
+		v.Value = vals[2]
 
-		s = append(s, sys)
+		s.Variables = append(s.Variables, v)
 	}
 
 	return nil

@@ -11,7 +11,7 @@ type Sysctl interface {
 }
 
 type sysctl struct {
-	variables []variable `json:"variables"`
+	Variables []variable `json:"variables"`
 	Last      time.Time  `json:"last"`
 	TTL       int        `json:"ttl_sec"`
 	Fresh     bool       `json:"fresh"`
