@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/mickep76/hwinfo/memory"
+	//	"github.com/mickep76/hwinfo/memory"
+	"github.com/mickep76/hwinfo/system"
 )
 
 func main() {
-	d := memory.New()
+	d := system.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())

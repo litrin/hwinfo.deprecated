@@ -3,13 +3,24 @@
 package system
 
 import (
+	"time"
+
 	"github.com/mickep76/hwinfo/common"
 )
 
-// Get information about a system.
-func Get() (System, error) {
-	s := System{}
+type system struct {
+	Manufacturer   string    `json:"manufacturer"`
+	Product        string    `json:"product"`
+	ProductVersion string    `json:"product_version"`
+	SerialNumber   string    `json:"serial_number"`
+	BIOSVendor     string    `json:"bios_vendor"`
+	BIOSDate       string    `json:"bios_date"`
+	BIOSVersion    string    `json:"bios_version"`
+	Last           time.Time `json:"last"`
+	TTL            int       `json:"ttl_sec"`
+}
 
+func (s *system) get() error {
 	o, err := common.LoadFiles([]string{
 		"/sys/devices/virtual/dmi/id/chassis_vendor",
 		"/sys/devices/virtual/dmi/id/product_name",
@@ -20,7 +31,7 @@ func Get() (System, error) {
 		"/sys/devices/virtual/dmi/id/bios_version",
 	})
 	if err != nil {
-		return System{}, err
+		return err
 	}
 
 	s.Manufacturer = o["chassis_vendor"]
@@ -31,5 +42,5 @@ func Get() (System, error) {
 	s.BIOSDate = o["bios_date"]
 	s.BIOSVersion = o["bios_version"]
 
-	return s, nil
+	return nil
 }
