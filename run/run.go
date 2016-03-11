@@ -7,11 +7,12 @@ import (
 
 	//	"github.com/mickep76/hwinfo/memory"
 	//	"github.com/mickep76/hwinfo/system"
-	"github.com/mickep76/hwinfo/cpu"
+	//	"github.com/mickep76/hwinfo/cpu"
+	"github.com/mickep76/hwinfo/network"
 )
 
 func main() {
-	d := cpu.New()
+	d := network.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())

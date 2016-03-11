@@ -7,9 +7,21 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 )
 
-// Info structure for information about a systems network interfaces.
+type Network interface {
+	SetTTL(int)
+	Get() error
+}
+
+type network struct {
+	Interfaces    []Interface `json:"interfaces"`
+	OnloadVersion string      `json:"onload_version,omitempty"`
+	Last          time.Time   `json:"last"`
+	TTL           int         `json:"ttl_sec"`
+}
+
 type Interface struct {
 	Name            string   `json:"name"`
 	MTU             int      `json:"mtu"`
@@ -29,19 +41,36 @@ type Interface struct {
 	SwVLAN          string   `json:"sw_vlan"`
 }
 
-// Info structure for information about a systems network.
-type Network struct {
-	Interfaces    []Interface `json:"interfaces"`
-	OnloadVersion string      `json:"onload_version,omitempty"`
+// New network constructor.
+func New() *network {
+	return &network{
+		TTL: 60 * 60,
+	}
 }
 
-// GetInfo return information about a systems memory.
-func Get() (Network, error) {
-	network := Network{}
+// Get network info.
+func (n *network) Get() error {
+	if n.Last.IsZero() {
+		if err := n.get(); err != nil {
+			return err
+		}
+		n.Last = time.Now()
+	} else {
+		expire := n.Last.Add(time.Duration(n.TTL) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := n.get(); err != nil {
+				return err
+			}
+		}
+	}
 
+	return nil
+}
+
+func (n *network) get() error {
 	intfs, err := net.Interfaces()
 	if err != nil {
-		return Network{}, err
+		return err
 	}
 
 	for _, intf := range intfs {
@@ -58,7 +87,7 @@ func Get() (Network, error) {
 
 		addrs, err := intf.Addrs()
 		if err != nil {
-			return Network{}, err
+			return err
 		}
 
 		nintf := Interface{
@@ -93,7 +122,7 @@ func Get() (Network, error) {
 				"bus-info",
 			})
 			if err != nil {
-				return Network{}, err
+				return err
 			}
 
 			nintf.Driver = o["driver"]
@@ -113,7 +142,7 @@ func Get() (Network, error) {
 				"VLAN",
 			})
 			if err != nil {
-				return Network{}, err
+				return err
 			}
 
 			nintf.SwChassisID = o2["ChassisID"]
@@ -124,7 +153,7 @@ func Get() (Network, error) {
 			nintf.SwVLAN = o2["VLAN"]
 		}
 
-		network.Interfaces = append(network.Interfaces, nintf)
+		n.Interfaces = append(n.Interfaces, nintf)
 	}
 
 	switch runtime.GOOS {
@@ -133,11 +162,11 @@ func Get() (Network, error) {
 		if err == nil {
 			o, _ := common.ExecCmdFields("onload", []string{"--version"}, ":", []string{"Kernel module"})
 			if err != nil {
-				return Network{}, err
+				return err
 			}
-			network.OnloadVersion = o["Kernel module"]
+			n.OnloadVersion = o["Kernel module"]
 		}
 	}
 
-	return network, nil
+	return nil
 }
