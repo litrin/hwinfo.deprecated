@@ -7,14 +7,15 @@ import (
 
 	//	"github.com/mickep76/hwinfo/memory"
 	//	"github.com/mickep76/hwinfo/system"
-	"github.com/mickep76/hwinfo/cpu"
+	//	"github.com/mickep76/hwinfo/cpu"
 	//	"github.com/mickep76/hwinfo/network"
 	//	"github.com/mickep76/hwinfo/opsys"
 	//	"github.com/mickep76/hwinfo/pci"
+	"github.com/mickep76/hwinfo/sysctl"
 )
 
 func main() {
-	d := cpu.New()
+	d := sysctl.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())

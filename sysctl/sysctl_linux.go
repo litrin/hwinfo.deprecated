@@ -7,12 +7,10 @@ import (
 	"strings"
 )
 
-func Get() ([]Sysctl, error) {
-	sysctl := []Sysctl{}
-
+func (s *sysctl) get() error {
 	o, err := exec.Command("sysctl", "-a").Output()
 	if err != nil {
-		return []Sysctl{}, err
+		return err
 	}
 
 	for _, line := range strings.Split(string(o), "\n") {
@@ -21,13 +19,13 @@ func Get() ([]Sysctl, error) {
 			continue
 		}
 
-		s := Sysctl{}
+		sys := Sysctl{}
 
-		s.Key = vals[0]
-		s.Value = vals[2]
+		sys.Key = vals[0]
+		sys.Value = vals[2]
 
-		sysctl = append(sysctl, s)
+		s = append(s, sys)
 	}
 
-	return sysctl, nil
+	return nil
 }
