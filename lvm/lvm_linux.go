@@ -9,28 +9,26 @@ import (
 	"strings"
 )
 
-func Get() (LVM, error) {
-	lvm := LVM{}
-
+func (l *lvm) Get() error {
 	pvs, err := GetPhysVols()
 	if err != nil {
 		return LVM{}, err
 	}
-	lvm.PhysVols = &pvs
+	l.PhysVols = &pvs
 
-	lvs, err := GetLogVols()
+	l, err := GetLogVols()
 	if err != nil {
 		return LVM{}, err
 	}
-	lvm.LogVols = &lvs
+	l.LogVols = &lvs
 
 	vgs, err := GetVolGrps()
 	if err != nil {
 		return LVM{}, err
 	}
-	lvm.VolGrps = &vgs
+	l.VolGrps = &vgs
 
-	return lvm, nil
+	return nil
 }
 
 func GetPhysVols() ([]PhysVol, error) {
