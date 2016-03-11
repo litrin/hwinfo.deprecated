@@ -7,14 +7,14 @@ import (
 
 	//	"github.com/mickep76/hwinfo/memory"
 	//	"github.com/mickep76/hwinfo/system"
-	//	"github.com/mickep76/hwinfo/cpu"
+	"github.com/mickep76/hwinfo/cpu"
 	//	"github.com/mickep76/hwinfo/network"
 	//	"github.com/mickep76/hwinfo/opsys"
-	"github.com/mickep76/hwinfo/pci"
+	//	"github.com/mickep76/hwinfo/pci"
 )
 
 func main() {
-	d := pci.New()
+	d := cpu.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())

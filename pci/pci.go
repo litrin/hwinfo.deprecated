@@ -14,6 +14,7 @@ import (
 type PCI interface {
 	SetTTL(int)
 	Get() error
+	Refresh() error
 }
 
 type device struct {
@@ -33,30 +34,43 @@ type pci struct {
 	Devices []device  `json:"devices"`
 	Last    time.Time `json:"last"`
 	TTL     int       `json:"ttl_sec"`
+	Fresh   bool      `json:"fresh"`
 }
 
-// New PCI constructor.
+// New constructor.
 func New() *pci {
 	return &pci{
 		TTL: 12 * 60 * 60,
 	}
 }
 
-// Get PCI info.
+// Get info.
 func (p *pci) Get() error {
 	if p.Last.IsZero() {
-		if err := p.get(); err != nil {
+		if err := p.Refresh(); err != nil {
 			return err
 		}
-		p.Last = time.Now()
 	} else {
 		expire := p.Last.Add(time.Duration(p.TTL) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := p.get(); err != nil {
+			if err := p.Refresh(); err != nil {
 				return err
 			}
+		} else {
+			p.Fresh = false
 		}
 	}
+
+	return nil
+}
+
+// Refresh cache.
+func (p *pci) Refresh() error {
+	if err := p.get(); err != nil {
+		return err
+	}
+	p.Last = time.Now()
+	p.Fresh = true
 
 	return nil
 }

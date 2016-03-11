@@ -13,6 +13,7 @@ import (
 type Network interface {
 	SetTTL(int)
 	Get() error
+	Refresh() error
 }
 
 type network struct {
@@ -20,6 +21,7 @@ type network struct {
 	OnloadVersion string      `json:"onload_version,omitempty"`
 	Last          time.Time   `json:"last"`
 	TTL           int         `json:"ttl_sec"`
+	Fresh         bool        `json:"fresh"`
 }
 
 type Interface struct {
@@ -41,28 +43,40 @@ type Interface struct {
 	SwVLAN          string   `json:"sw_vlan"`
 }
 
-// New network constructor.
+// New constructor.
 func New() *network {
 	return &network{
 		TTL: 60 * 60,
 	}
 }
 
-// Get network info.
+// Get info.
 func (n *network) Get() error {
 	if n.Last.IsZero() {
-		if err := n.get(); err != nil {
+		if err := n.Refresh(); err != nil {
 			return err
 		}
-		n.Last = time.Now()
 	} else {
 		expire := n.Last.Add(time.Duration(n.TTL) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := n.get(); err != nil {
+			if err := n.Refresh(); err != nil {
 				return err
 			}
+		} else {
+			n.Fresh = false
 		}
 	}
+
+	return nil
+}
+
+// Refresh cache.
+func (n *network) Refresh() error {
+	if err := n.get(); err != nil {
+		return err
+	}
+	n.Last = time.Now()
+	n.Fresh = true
 
 	return nil
 }

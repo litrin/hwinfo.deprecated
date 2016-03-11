@@ -7,6 +7,7 @@ import (
 type CPU interface {
 	SetTTL(int)
 	Get() error
+	Refresh() error
 }
 
 type cpu struct {
@@ -19,30 +20,43 @@ type cpu struct {
 	ThreadsPerCore int       `json:"threads_per_core"`
 	Last           time.Time `json:"last"`
 	TTL            int       `json:"ttl_sec"`
+	Fresh          bool      `json:"fresh"`
 }
 
-// New cpu constructor.
+// New constructor.
 func New() *cpu {
 	return &cpu{
-		TTL: 5,
+		TTL: 12 * 60 * 60,
 	}
 }
 
-// Get cpu info.
+// Get info.
 func (c *cpu) Get() error {
 	if c.Last.IsZero() {
-		if err := c.get(); err != nil {
+		if err := c.Refresh(); err != nil {
 			return err
 		}
-		c.Last = time.Now()
 	} else {
 		expire := c.Last.Add(time.Duration(c.TTL) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := c.get(); err != nil {
+			if err := c.Refresh(); err != nil {
 				return err
 			}
+		} else {
+			c.Fresh = false
 		}
 	}
+
+	return nil
+}
+
+// Refresh cache.
+func (c *cpu) Refresh() error {
+	if err := c.get(); err != nil {
+		return err
+	}
+	c.Last = time.Now()
+	c.Fresh = true
 
 	return nil
 }

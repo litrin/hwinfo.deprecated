@@ -14,6 +14,7 @@ type memory struct {
 	TotalGB int       `json:"total_gb"`
 	Last    time.Time `json:"last"`
 	TTL     int       `json:"ttl_sec"`
+	Fresh   bool      `json:"fresh"`
 }
 
 // Get memory info.

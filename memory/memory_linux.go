@@ -94,6 +94,7 @@ type memory struct {
 	DirectMap1GKB       int       `json:"direct_map_1g_kb"`
 	Last                time.Time `json:"last"`
 	TTL                 int       `json:"ttl_sec"`
+	Fresh               bool      `json:"fresh"`
 }
 
 // Get memory info.

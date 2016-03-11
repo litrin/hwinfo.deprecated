@@ -7,6 +7,7 @@ import (
 type OpSys interface {
 	SetTTL(int)
 	Get() error
+	Refresh() error
 }
 
 type opSys struct {
@@ -16,30 +17,43 @@ type opSys struct {
 	ProductVersion string    `json:"product_version"`
 	Last           time.Time `json:"last"`
 	TTL            int       `json:"ttl_sec"`
+	Fresh          bool      `json:"fresh"`
 }
 
-// New OpSys constructor.
+// New constructor.
 func New() *opSys {
 	return &opSys{
 		TTL: 12 * 60 * 60,
 	}
 }
 
-// Get OpSys info.
-func (o *opSys) Get() error {
-	if o.Last.IsZero() {
-		if err := o.get(); err != nil {
+// Get info.
+func (op *opSys) Get() error {
+	if op.Last.IsZero() {
+		if err := op.Refresh(); err != nil {
 			return err
 		}
-		o.Last = time.Now()
 	} else {
-		expire := o.Last.Add(time.Duration(o.TTL) * time.Second)
+		expire := op.Last.Add(time.Duration(op.TTL) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := o.get(); err != nil {
+			if err := op.Refresh(); err != nil {
 				return err
 			}
+		} else {
+			op.Fresh = false
 		}
 	}
+
+	return nil
+}
+
+// Refresh cache.
+func (op *opSys) Refresh() error {
+	if err := op.get(); err != nil {
+		return err
+	}
+	op.Last = time.Now()
+	op.Fresh = true
 
 	return nil
 }
