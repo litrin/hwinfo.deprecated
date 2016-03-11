@@ -8,11 +8,12 @@ import (
 	//	"github.com/mickep76/hwinfo/memory"
 	//	"github.com/mickep76/hwinfo/system"
 	//	"github.com/mickep76/hwinfo/cpu"
-	"github.com/mickep76/hwinfo/network"
+	//	"github.com/mickep76/hwinfo/network"
+	"github.com/mickep76/hwinfo/opsys"
 )
 
 func main() {
-	d := network.New()
+	d := opsys.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())

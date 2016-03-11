@@ -7,26 +7,23 @@ import (
 	"runtime"
 )
 
-// Get information about the operating system.
-func Get() (OpSys, error) {
-	opsys := OpSys{}
-
+func (op *opSys) get() error {
 	o, err := common.ExecCmdFields("lsb_release", []string{"-a"}, ":", []string{
 		"Distributor ID",
 		"Release",
 	})
 	if err != nil {
-		return OpSys{}, err
+		return err
 	}
 
-	opsys.Kernel = runtime.GOOS
-	opsys.Product = o["Distributor ID"]
-	opsys.ProductVersion = o["Release"]
+	op.Kernel = runtime.GOOS
+	op.Product = o["Distributor ID"]
+	op.ProductVersion = o["Release"]
 
-	opsys.KernelVersion, err = common.ExecCmd("uname", []string{"-r"})
+	op.KernelVersion, err = common.ExecCmd("uname", []string{"-r"})
 	if err != nil {
-		return OpSys{}, err
+		return err
 	}
 
-	return opsys, nil
+	return nil
 }
