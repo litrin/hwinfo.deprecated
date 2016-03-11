@@ -8,10 +8,7 @@ import (
 	"strings"
 )
 
-// Get information about system CPU(s).
-func Get() (CPU, error) {
-	c := CPU{}
-
+func (c *cpu) get() error {
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", []string{
 		"machdep.cpu.core_count",
 		"hw.physicalcpu_max",
@@ -20,22 +17,22 @@ func Get() (CPU, error) {
 		"machdep.cpu.features",
 	})
 	if err != nil {
-		return CPU{}, err
+		return err
 	}
 
 	c.CoresPerSocket, err = strconv.Atoi(o["machdep.cpu.core_count"])
 	if err != nil {
-		return CPU{}, err
+		return err
 	}
 
 	c.Physical, err = strconv.Atoi(o["hw.physicalcpu_max"])
 	if err != nil {
-		return CPU{}, err
+		return err
 	}
 
 	c.Logical, err = strconv.Atoi(o["hw.logicalcpu_max"])
 	if err != nil {
-		return CPU{}, err
+		return err
 	}
 
 	c.Sockets = c.Physical / c.CoresPerSocket
@@ -43,5 +40,5 @@ func Get() (CPU, error) {
 	c.Model = o["machdep.cpu.brand_string"]
 	c.Flags = strings.ToLower(o["machdep.cpu.features"])
 
-	return c, nil
+	return nil
 }

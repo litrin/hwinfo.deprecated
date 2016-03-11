@@ -6,11 +6,12 @@ import (
 	"log"
 
 	//	"github.com/mickep76/hwinfo/memory"
-	"github.com/mickep76/hwinfo/system"
+	//	"github.com/mickep76/hwinfo/system"
+	"github.com/mickep76/hwinfo/cpu"
 )
 
 func main() {
-	d := system.New()
+	d := cpu.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())

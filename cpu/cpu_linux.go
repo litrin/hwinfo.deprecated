@@ -10,17 +10,15 @@ import (
 	"strings"
 )
 
-// Get information about system CPU(s).
-func Get() (CPU, error) {
-	c := CPU{}
-
+// Get memory info.
+func (c *cpu) get() error {
 	if _, err := os.Stat("/proc/cpuinfo"); os.IsNotExist(err) {
-		return CPU{}, errors.New("file doesn't exist: /proc/cpuinfo")
+		return errors.New("file doesn't exist: /proc/cpuinfo")
 	}
 
 	o, err := ioutil.ReadFile("/proc/cpuinfo")
 	if err != nil {
-		return CPU{}, err
+		return err
 	}
 
 	cpuID := -1
@@ -41,14 +39,14 @@ func Get() (CPU, error) {
 		} else if c.CoresPerSocket == 0 && strings.HasPrefix(line, "cpu cores") {
 			c.CoresPerSocket, err = strconv.Atoi(v)
 			if err != nil {
-				return CPU{}, err
+				return err
 			}
 		} else if strings.HasPrefix(line, "processor") {
 			c.Logical++
 		} else if strings.HasPrefix(line, "physical id") {
 			cpuID, err = strconv.Atoi(v)
 			if err != nil {
-				return CPU{}, err
+				return err
 			}
 			cpuIDs[cpuID] = true
 		}
@@ -57,5 +55,5 @@ func Get() (CPU, error) {
 	c.Physical = c.Sockets * c.CoresPerSocket
 	c.ThreadsPerCore = c.Logical / c.Sockets / c.CoresPerSocket
 
-	return c, nil
+	return nil
 }
