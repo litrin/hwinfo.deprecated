@@ -17,14 +17,20 @@ func New() *memory {
 }
 
 // Get memory info.
-func (m *memory) Get() {
+func (m *memory) Get() error {
 	if m.Last.IsZero() {
-		m.get()
+		if err := m.get(); err != nil {
+			return err
+		}
 		m.Last = time.Now()
 	} else {
 		expire := m.Last.Add(time.Duration(m.TTL) * time.Second)
 		if expire.Before(time.Now()) {
-			m.get()
+			if err := m.get(); err != nil {
+				return err
+			}
 		}
 	}
+
+	return nil
 }
