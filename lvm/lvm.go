@@ -2,6 +2,10 @@
 
 package lvm
 
+import (
+	"time"
+)
+
 type LVM interface {
 	SetTTL(int)
 	Get() error
@@ -9,9 +13,9 @@ type LVM interface {
 }
 
 type lvm struct {
-	PhysVols []PhysVol `json:"phys_vols"`
-	LogVols  []LogVol  `json:"log_vols"`
-	VolGrps  []VolGrp  `json:"vol_grps"`
+	PhysVols []physVol `json:"phys_vols"`
+	LogVols  []logVol  `json:"log_vols"`
+	VolGrps  []volGrp  `json:"vol_grps"`
 	Last     time.Time `json:"last"`
 	TTL      int       `json:"ttl_sec"`
 	Fresh    bool      `json:"fresh"`
@@ -43,7 +47,7 @@ type volGrp struct {
 // New constructor.
 func New() *lvm {
 	return &lvm{
-		TTL: 5 * 60,
+		TTL: 60 * 60,
 	}
 }
 

@@ -12,11 +12,13 @@ import (
 	//	"github.com/mickep76/hwinfo/opsys"
 	//	"github.com/mickep76/hwinfo/pci"
 	//	"github.com/mickep76/hwinfo/sysctl"
-	"github.com/mickep76/hwinfo/disk"
+	//	"github.com/mickep76/hwinfo/disk"
+	//	"github.com/mickep76/hwinfo/dock2box"
+	"github.com/mickep76/hwinfo/lvm"
 )
 
 func main() {
-	d := disk.New()
+	d := lvm.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())

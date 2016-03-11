@@ -9,39 +9,39 @@ import (
 	"strings"
 )
 
-func (l *lvm) Get() error {
+func (l *lvm) get() error {
 	pvs, err := GetPhysVols()
 	if err != nil {
-		return LVM{}, err
+		return err
 	}
-	l.PhysVols = &pvs
+	l.PhysVols = pvs
 
-	l, err := GetLogVols()
+	lvs, err := GetLogVols()
 	if err != nil {
-		return LVM{}, err
+		return err
 	}
-	l.LogVols = &lvs
+	l.LogVols = lvs
 
 	vgs, err := GetVolGrps()
 	if err != nil {
-		return LVM{}, err
+		return err
 	}
-	l.VolGrps = &vgs
+	l.VolGrps = vgs
 
 	return nil
 }
 
-func GetPhysVols() ([]PhysVol, error) {
-	pvs := []PhysVol{}
+func GetPhysVols() ([]physVol, error) {
+	pvs := []physVol{}
 
 	_, err := exec.LookPath("pvs")
 	if err != nil {
-		return []PhysVol{}, errors.New("command doesn't exist: pvs")
+		return []physVol{}, errors.New("command doesn't exist: pvs")
 	}
 
 	o, err := exec.Command("pvs", "--units", "B").Output()
 	if err != nil {
-		return []PhysVol{}, err
+		return []physVol{}, err
 	}
 
 	for c, line := range strings.Split(string(o), "\n") {
@@ -50,7 +50,7 @@ func GetPhysVols() ([]PhysVol, error) {
 			continue
 		}
 
-		pv := PhysVol{}
+		pv := physVol{}
 
 		pv.Name = vals[0]
 		pv.VolGrp = vals[1]
@@ -59,13 +59,13 @@ func GetPhysVols() ([]PhysVol, error) {
 
 		pv.SizeGB, err = strconv.Atoi(strings.TrimRight(vals[4], "B"))
 		if err != nil {
-			return []PhysVol{}, err
+			return []physVol{}, err
 		}
 		pv.SizeGB = pv.SizeGB / 1024 / 1024 / 1024
 
 		pv.FreeGB, err = strconv.Atoi(strings.TrimRight(vals[5], "B"))
 		if err != nil {
-			return []PhysVol{}, err
+			return []physVol{}, err
 		}
 		pv.FreeGB = pv.FreeGB / 1024 / 1024 / 1024
 
@@ -75,17 +75,17 @@ func GetPhysVols() ([]PhysVol, error) {
 	return pvs, nil
 }
 
-func GetLogVols() ([]LogVol, error) {
-	lvs := []LogVol{}
+func GetLogVols() ([]logVol, error) {
+	lvs := []logVol{}
 
 	_, err := exec.LookPath("lvs")
 	if err != nil {
-		return []LogVol{}, errors.New("command doesn't exist: lvs")
+		return []logVol{}, errors.New("command doesn't exist: lvs")
 	}
 
 	o, err := exec.Command("lvs", "--units", "B").Output()
 	if err != nil {
-		return []LogVol{}, err
+		return []logVol{}, err
 	}
 
 	for c, line := range strings.Split(string(o), "\n") {
@@ -94,7 +94,7 @@ func GetLogVols() ([]LogVol, error) {
 			continue
 		}
 
-		lv := LogVol{}
+		lv := logVol{}
 
 		lv.Name = vals[0]
 		lv.VolGrp = vals[1]
@@ -102,7 +102,7 @@ func GetLogVols() ([]LogVol, error) {
 
 		lv.SizeGB, err = strconv.Atoi(strings.TrimRight(vals[3], "B"))
 		if err != nil {
-			return []LogVol{}, err
+			return []logVol{}, err
 		}
 		lv.SizeGB = lv.SizeGB / 1024 / 1024 / 1024
 
@@ -112,17 +112,17 @@ func GetLogVols() ([]LogVol, error) {
 	return lvs, nil
 }
 
-func GetVolGrps() ([]VolGrp, error) {
-	vgs := []VolGrp{}
+func GetVolGrps() ([]volGrp, error) {
+	vgs := []volGrp{}
 
 	_, err := exec.LookPath("vgs")
 	if err != nil {
-		return []VolGrp{}, errors.New("command doesn't exist: vgs")
+		return []volGrp{}, errors.New("command doesn't exist: vgs")
 	}
 
 	o, err := exec.Command("vgs", "--units", "B").Output()
 	if err != nil {
-		return []VolGrp{}, err
+		return []volGrp{}, err
 	}
 
 	for c, line := range strings.Split(string(o), "\n") {
@@ -131,20 +131,20 @@ func GetVolGrps() ([]VolGrp, error) {
 			continue
 		}
 
-		vg := VolGrp{}
+		vg := volGrp{}
 
 		vg.Name = vals[0]
 		vg.Attr = vals[4]
 
 		vg.SizeGB, err = strconv.Atoi(strings.TrimRight(vals[5], "B"))
 		if err != nil {
-			return []VolGrp{}, err
+			return []volGrp{}, err
 		}
 		vg.SizeGB = vg.SizeGB / 1024 / 1024 / 1024
 
 		vg.FreeGB, err = strconv.Atoi(strings.TrimRight(vals[6], "B"))
 		if err != nil {
-			return []VolGrp{}, err
+			return []volGrp{}, err
 		}
 		vg.FreeGB = vg.FreeGB / 1024 / 1024 / 1024
 
