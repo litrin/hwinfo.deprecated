@@ -2,14 +2,21 @@ package pci
 
 import (
 	"fmt"
-	"github.com/mickep76/hwinfo/common"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
+
+	"github.com/mickep76/hwinfo/common"
 )
 
-type PCI struct {
+type PCI interface {
+	SetTTL(int)
+	Get() error
+}
+
+type device struct {
 	Slot      string `json:"slot"`
 	ClassID   string `json:"class_id"`
 	Class     string `json:"class"`
@@ -19,7 +26,39 @@ type PCI struct {
 	Device    string `json:"device"`
 	SVendorID string `json:"svendor_id"`
 	SDeviceID string `json:"sdevice_id"`
-	SName     string `json:"sname,omiempty"`
+	SName     string `json:"sname"`
+}
+
+type pci struct {
+	Devices []device  `json:"devices"`
+	Last    time.Time `json:"last"`
+	TTL     int       `json:"ttl_sec"`
+}
+
+// New PCI constructor.
+func New() *pci {
+	return &pci{
+		TTL: 12 * 60 * 60,
+	}
+}
+
+// Get PCI info.
+func (p *pci) Get() error {
+	if p.Last.IsZero() {
+		if err := p.get(); err != nil {
+			return err
+		}
+		p.Last = time.Now()
+	} else {
+		expire := p.Last.Add(time.Duration(p.TTL) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := p.get(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // TODO: Cache PCI database as a map[string]string
@@ -135,13 +174,10 @@ func getPCIClass(classID string) (string, string, string, error) {
 	return class, subClass, progIntf, nil
 }
 
-// Get information about system PCI slots.
-func Get() ([]PCI, error) {
-	p := []PCI{}
-
+func (p *pci) get() error {
 	files, err := filepath.Glob("/sys/bus/pci/devices/*")
 	if err != nil {
-		return []PCI{}, err
+		return err
 	}
 
 	for _, path := range files {
@@ -155,13 +191,13 @@ func Get() ([]PCI, error) {
 			filepath.Join(path, "subsystem_device"),
 		})
 		if err != nil {
-			return []PCI{}, err
+			return err
 		}
 
 		classID := o["class"][2:]
 		class, subClass, _, err := getPCIClass(classID)
 		if err != nil {
-			return []PCI{}, err
+			return err
 		}
 		if subClass != "" {
 			class = subClass
@@ -171,12 +207,12 @@ func Get() ([]PCI, error) {
 		deviceID := o["device"][2:]
 		sVendorID := o["subsystem_vendor"][2:]
 		sDeviceID := o["subsystem_device"][2:]
-		vendor, device, sName, err := getPCIVendor(vendorID, deviceID, sVendorID, sDeviceID)
+		vendor, dev, sName, err := getPCIVendor(vendorID, deviceID, sVendorID, sDeviceID)
 		if err != nil {
-			return []PCI{}, err
+			return err
 		}
 
-		p = append(p, PCI{
+		p.Devices = append(p.Devices, device{
 			Slot:      slot[1],
 			ClassID:   classID,
 			Class:     class,
@@ -185,10 +221,10 @@ func Get() ([]PCI, error) {
 			SDeviceID: sDeviceID,
 			SVendorID: sVendorID,
 			Vendor:    vendor,
-			Device:    device,
+			Device:    dev,
 			SName:     sName,
 		})
 	}
 
-	return p, nil
+	return nil
 }
