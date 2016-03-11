@@ -1,6 +1,6 @@
 // +build linux
 
-package disks
+package disk
 
 import (
 	"github.com/mickep76/hwinfo/common"
@@ -8,10 +8,10 @@ import (
 	"strconv"
 )
 
-func (disk *disk) Get() error {
+func (disk *disk) get() error {
 	files, err := filepath.Glob("/sys/class/block/*")
 	if err != nil {
-		return []Disk{}, err
+		return err
 	}
 
 	for _, path := range files {
@@ -37,5 +37,5 @@ func (disk *disk) Get() error {
 		disk.Devices = append(disk.Devices, d)
 	}
 
-	return da, nil
+	return nil
 }

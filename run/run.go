@@ -11,11 +11,12 @@ import (
 	//	"github.com/mickep76/hwinfo/network"
 	//	"github.com/mickep76/hwinfo/opsys"
 	//	"github.com/mickep76/hwinfo/pci"
-	"github.com/mickep76/hwinfo/sysctl"
+	//	"github.com/mickep76/hwinfo/sysctl"
+	"github.com/mickep76/hwinfo/disk"
 )
 
 func main() {
-	d := sysctl.New()
+	d := disk.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())

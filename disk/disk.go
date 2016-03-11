@@ -11,7 +11,7 @@ type Disk interface {
 }
 
 type disk struct {
-	devices []device  `json:"devices"`
+	Devices []device  `json:"devices"`
 	Last    time.Time `json:"last"`
 	TTL     int       `json:"ttl_sec"`
 	Fresh   bool      `json:"fresh"`
