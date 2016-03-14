@@ -1,6 +1,6 @@
 // +build linux
 
-package disk
+package disks
 
 import (
 	"path/filepath"
@@ -76,6 +76,35 @@ func (disks *disks) Get() error {
 
 		*disks = append(*disks, d)
 	}
+
+	return nil
+}
+
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
+			return err
+		}
+	} else {
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := c.GetRefresh(); err != nil {
+				return err
+			}
+		} else {
+			c.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (c *cached) GetRefresh() error {
+	if err := c.Disks.Get(); err != nil {
+		return err
+	}
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }
