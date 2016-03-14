@@ -5,7 +5,7 @@ package interfaces
 import (
 	"fmt"
 	"net"
-	"os/exec"
+	//	"os/exec"
 	"runtime"
 	"strings"
 	"time"
@@ -62,54 +62,49 @@ func NewCached() *cached {
 	}
 }
 
-func (intfs *intfs) Get() error {
+func (sIntfs *intfs) Get() error {
+	rIntfs, err := net.Interfaces()
 	if err != nil {
 		return err
 	}
 
-	for _, intf := range intfs {
+	for _, rIntf := range rIntfs {
 		// Skip loopback interfaces
-		if intf.Flags&net.FlagLoopback != 0 {
+		if rIntf.Flags&net.FlagLoopback != 0 {
 			continue
 		}
-		/*
-			// Skip interfaces that are down
-			if intf.Flags&net.FlagUp == 0 {
-				continue
-			}
-		*/
 
-		addrs, err := intf.Addrs()
+		addrs, err := rIntf.Addrs()
 		if err != nil {
 			return err
 		}
 
-		nintf := Interface{
-			Name:   intf.Name,
-			HWAddr: intf.HardwareAddr.String(),
-			MTU:    intf.MTU,
+		sIntf := intf{
+			Name:   rIntf.Name,
+			HWAddr: rIntf.HardwareAddr.String(),
+			MTU:    rIntf.MTU,
 		}
 
 		for _, addr := range addrs {
-			nintf.IPAddr = append(nintf.IPAddr, addr.String())
+			sIntf.IPAddr = append(sIntf.IPAddr, addr.String())
 		}
 
-		if intf.Flags&net.FlagUp != 0 {
-			nintf.Flags = append(nintf.Flags, "up")
+		if rIntf.Flags&net.FlagUp != 0 {
+			sIntf.Flags = append(sIntf.Flags, "up")
 		}
-		if intf.Flags&net.FlagBroadcast != 0 {
-			nintf.Flags = append(nintf.Flags, "broadcast")
+		if rIntf.Flags&net.FlagBroadcast != 0 {
+			sIntf.Flags = append(sIntf.Flags, "broadcast")
 		}
-		if intf.Flags&net.FlagPointToPoint != 0 {
-			nintf.Flags = append(nintf.Flags, "pointtopoint")
+		if rIntf.Flags&net.FlagPointToPoint != 0 {
+			sIntf.Flags = append(sIntf.Flags, "pointtopoint")
 		}
-		if intf.Flags&net.FlagMulticast != 0 {
-			nintf.Flags = append(nintf.Flags, "multicast")
+		if rIntf.Flags&net.FlagMulticast != 0 {
+			sIntf.Flags = append(sIntf.Flags, "multicast")
 		}
 
 		switch runtime.GOOS {
 		case "linux":
-			o, err := common.ExecCmdFields("/usr/sbin/ethtool", []string{"-i", intf.Name}, ":", []string{
+			o, err := common.ExecCmdFields("/usr/sbin/ethtool", []string{"-i", rIntf.Name}, ":", []string{
 				"driver",
 				"version",
 				"firmware-version",
@@ -119,15 +114,15 @@ func (intfs *intfs) Get() error {
 				return err
 			}
 
-			nintf.Driver = o["driver"]
-			nintf.DriverVersion = o["version"]
-			nintf.FirmwareVersion = o["firmware-version"]
+			sIntf.Driver = o["driver"]
+			sIntf.DriverVersion = o["version"]
+			sIntf.FirmwareVersion = o["firmware-version"]
 			if strings.HasPrefix(o["bus-info"], "0000:") {
-				nintf.PCIBus = o["bus-info"]
-				nintf.PCIBusURL = fmt.Sprintf("/pci/%v", o["bus-info"])
+				sIntf.PCIBus = o["bus-info"]
+				sIntf.PCIBusURL = fmt.Sprintf("/pci/%v", o["bus-info"])
 			}
 
-			o2, err := common.ExecCmdFields("/usr/sbin/lldpctl", []string{intf.Name}, ":", []string{
+			o2, err := common.ExecCmdFields("/usr/sbin/lldpctl", []string{rIntf.Name}, ":", []string{
 				"ChassisID",
 				"SysName",
 				"SysDescr",
@@ -139,28 +134,30 @@ func (intfs *intfs) Get() error {
 				return err
 			}
 
-			nintf.SwChassisID = o2["ChassisID"]
-			nintf.SwName = o2["SysName"]
-			nintf.SwDescr = o2["SysDescr"]
-			nintf.SwPortID = o2["PortID"]
-			nintf.SwPortDescr = o2["PortDescr"]
-			nintf.SwVLAN = o2["VLAN"]
+			sIntf.SwChassisID = o2["ChassisID"]
+			sIntf.SwName = o2["SysName"]
+			sIntf.SwDescr = o2["SysDescr"]
+			sIntf.SwPortID = o2["PortID"]
+			sIntf.SwPortDescr = o2["PortDescr"]
+			sIntf.SwVLAN = o2["VLAN"]
 		}
 
-		*intfs = append(*intfs, nintf)
+		*sIntfs = append(*sIntfs, sIntf)
 	}
 
-	switch runtime.GOOS {
-	case "linux":
-		_, err := exec.LookPath("onload")
-		if err == nil {
-			o, _ := common.ExecCmdFields("onload", []string{"--version"}, ":", []string{"Kernel module"})
-			if err != nil {
-				return err
+	/*
+		switch runtime.GOOS {
+		case "linux":
+			_, err := exec.LookPath("onload")
+			if err == nil {
+				o, _ := common.ExecCmdFields("onload", []string{"--version"}, ":", []string{"Kernel module"})
+				if err != nil {
+					return err
+				}
+				n.OnloadVersion = o["Kernel module"]
 			}
-			n.OnloadVersion = o["Kernel module"]
 		}
-	}
+	*/
 
 	return nil
 }
