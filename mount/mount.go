@@ -7,19 +7,13 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 )
 
 type Mount interface {
-    SetTTL(int)
-    Get() error
-    Refresh() error
-}
-
-type mount {
-	FileSystems			[]fileSystem `json:"file_systems"`
-    Last                time.Time `json:"last"`
-    TTL                 int       `json:"ttl_sec"`
-    Fresh               bool      `json:"fresh"`
+	SetTTL(int)
+	Get() error
+	Refresh() error
 }
 
 type fileSystem struct {
@@ -29,8 +23,15 @@ type fileSystem struct {
 	Options string `json:"options"`
 }
 
+type mount struct {
+	FileSystems []fileSystem `json:"file_systems"`
+	Last        time.Time    `json:"last"`
+	TTL         int          `json:"ttl_sec"`
+	Fresh       bool         `json:"fresh"`
+}
+
 // New constructor.
-func New() *mount{
+func New() *mount {
 	return &mount{
 		TTL: 5,
 	}
@@ -94,5 +95,5 @@ func (m *mount) get() error {
 		m.FileSystems = append(m.FileSystems, fs)
 	}
 
-	return  nil
+	return nil
 }

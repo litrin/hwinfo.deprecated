@@ -14,11 +14,12 @@ import (
 	//	"github.com/mickep76/hwinfo/sysctl"
 	//	"github.com/mickep76/hwinfo/disk"
 	//	"github.com/mickep76/hwinfo/dock2box"
-	"github.com/mickep76/hwinfo/lvm"
+	//	"github.com/mickep76/hwinfo/lvm"
+	"github.com/mickep76/hwinfo/mount"
 )
 
 func main() {
-	d := lvm.New()
+	d := mount.New()
 	err := d.Get()
 	if err != nil {
 		log.Fatal(err.Error())
