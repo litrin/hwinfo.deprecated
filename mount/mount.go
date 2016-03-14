@@ -1,6 +1,6 @@
 // +build linux
 
-package mount
+package mounts
 
 import (
 	"fmt"
@@ -10,65 +10,44 @@ import (
 	"time"
 )
 
-type Mount interface {
-	SetTTL(int)
+type Mounts interface {
 	Get() error
-	Refresh() error
 }
 
-type fileSystem struct {
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	GetRefresh() error
+}
+
+type mounts []mounts
+
+type mount struct {
 	Source  string `json:"source"`
 	Target  string `json:"target"`
 	FSType  string `json:"fs_type"`
 	Options string `json:"options"`
 }
 
-type mount struct {
-	FileSystems []fileSystem `json:"file_systems"`
-	Last        time.Time    `json:"last"`
-	TTL         int          `json:"ttl_sec"`
-	Fresh       bool         `json:"fresh"`
+type cached struct {
+	Mounts      *mounts   `json:"mounts"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
 }
 
-// New constructor.
-func New() *mount {
-	return &mount{
-		TTL: 5,
+func New() *mounts {
+	return &mounts{}
+}
+
+func NewCached() *cached {
+	return &cached{
+		Mounts:  New(),
+		Timeout: 5 * 60, // 5 minutes
 	}
 }
 
-// Get info.
-func (m *mount) Get() error {
-	if m.Last.IsZero() {
-		if err := m.Refresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := m.Last.Add(time.Duration(m.TTL) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := m.Refresh(); err != nil {
-				return err
-			}
-		} else {
-			m.Fresh = false
-		}
-	}
-
-	return nil
-}
-
-// Refresh cache.
-func (m *mount) Refresh() error {
-	if err := m.get(); err != nil {
-		return err
-	}
-	m.Last = time.Now()
-	m.Fresh = true
-
-	return nil
-}
-
-func (m *mount) get() error {
+func (mounts *mounts) Get() error {
 	fn := "/proc/mounts"
 	if _, err := os.Stat(fn); os.IsNotExist(err) {
 		return fmt.Errorf("file doesn't exist: %s", fn)
@@ -80,20 +59,49 @@ func (m *mount) get() error {
 	}
 
 	for c, line := range strings.Split(string(o), "\n") {
-		vals := strings.Fields(line)
-		if c < 1 || len(vals) < 1 {
+		v := strings.Fields(line)
+		if c < 1 || len(v) < 1 {
 			continue
 		}
 
-		fs := fileSystem{}
+		m := mount{}
 
-		fs.Source = vals[0]
-		fs.Target = vals[1]
-		fs.FSType = vals[2]
-		fs.Options = vals[3]
+		m.Source = vals[0]
+		m.Target = vals[1]
+		m.FSType = vals[2]
+		m.Options = vals[3]
 
-		m.FileSystems = append(m.FileSystems, fs)
+		*mounts = append(mounts, m)
 	}
+
+	return nil
+}
+
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
+			return err
+		}
+	} else {
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := c.GetRefresh(); err != nil {
+				return err
+			}
+		} else {
+			c.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (c *cached) GetRefresh() error {
+	if err := c.Routes.Get(); err != nil {
+		return err
+	}
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }
