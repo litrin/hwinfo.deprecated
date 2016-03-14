@@ -11,9 +11,9 @@ import (
 	//	"github.com/mickep76/hwinfo/opsys"
 	//	"github.com/mickep76/hwinfo/pci"
 	//	"github.com/mickep76/hwinfo/sysctl"
-	"github.com/mickep76/hwinfo/dock2box"
 	//	"github.com/mickep76/hwinfo/dock2box"
-	//	"github.com/mickep76/hwinfo/lvm"
+	//	"github.com/mickep76/hwinfo/dock2box"
+	"github.com/mickep76/hwinfo/lvm"
 	//	"github.com/mickep76/hwinfo/mount"
 	//	"github.com/mickep76/hwinfo/cpu"
 	//	"github.com/mickep76/hwinfo/routes"
@@ -22,7 +22,7 @@ import (
 )
 
 func main() {
-	d := dock2box.NewCached()
+	d := lvm.NewCached()
 	if err := d.Get(); err != nil {
 		log.Fatal(err.Error())
 	}
