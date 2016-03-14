@@ -4,10 +4,17 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Routes interface {
 	Get() error
+}
+
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	Refresh() error
 }
 
 type routes []route
@@ -23,9 +30,24 @@ type route struct {
 	Interface   string `json:"interface"`
 }
 
+type cached struct {
+	Routes      *routes   `json:"routes"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
+}
+
 func New() *routes {
 	r := routes{}
 	return &r
+}
+
+func NewCached() *cached {
+	c := cached{
+		Routes:  New(),
+		Timeout: 5 * 60 * 60,
+	}
+	return &c
 }
 
 func (routes *routes) Get() error {
@@ -66,6 +88,35 @@ func (routes *routes) Get() error {
 
 		*routes = append(*routes, r)
 	}
+
+	return nil
+}
+
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.Refresh(); err != nil {
+			return err
+		}
+	} else {
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := c.Refresh(); err != nil {
+				return err
+			}
+		} else {
+			c.FromCache = false
+		}
+	}
+
+	return nil
+}
+
+func (c *cached) Refresh() error {
+	if err := c.Routes.Get(); err != nil {
+		return err
+	}
+	c.LastUpdated = time.Now()
+	c.FromCache = true
 
 	return nil
 }
