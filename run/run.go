@@ -8,8 +8,8 @@ import (
 	//	"github.com/mickep76/hwinfo/memory"
 	//	"github.com/mickep76/hwinfo/system"
 	//	"github.com/mickep76/hwinfo/interfaces"
-	"github.com/mickep76/hwinfo/opsys"
-	//	"github.com/mickep76/hwinfo/pci"
+	//	"github.com/mickep76/hwinfo/opsys"
+	"github.com/mickep76/hwinfo/pci"
 	//	"github.com/mickep76/hwinfo/sysctl"
 	//	"github.com/mickep76/hwinfo/dock2box"
 	//	"github.com/mickep76/hwinfo/lvm"
@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	d := opsys.NewCached()
+	d := pci.NewCached()
 	if err := d.Get(); err != nil {
 		log.Fatal(err.Error())
 	}

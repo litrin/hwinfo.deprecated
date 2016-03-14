@@ -12,12 +12,18 @@ import (
 )
 
 type PCI interface {
-	SetTTL(int)
 	Get() error
-	Refresh() error
 }
 
-type device struct {
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	GetRefresh() error
+}
+
+type pcis []pci
+
+type pci struct {
 	Slot      string `json:"slot"`
 	ClassID   string `json:"class_id"`
 	Class     string `json:"class"`
@@ -30,49 +36,22 @@ type device struct {
 	SName     string `json:"sname"`
 }
 
-type pci struct {
-	Devices []device  `json:"devices"`
-	Last    time.Time `json:"last"`
-	TTL     int       `json:"ttl_sec"`
-	Fresh   bool      `json:"fresh"`
+type cached struct {
+	PCI         *pcis     `json:"pci"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
 }
 
-// New constructor.
-func New() *pci {
-	return &pci{
-		TTL: 12 * 60 * 60,
-	}
+func New() *pcis {
+	return &pcis{}
 }
 
-// Get info.
-func (p *pci) Get() error {
-	if p.Last.IsZero() {
-		if err := p.Refresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := p.Last.Add(time.Duration(p.TTL) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := p.Refresh(); err != nil {
-				return err
-			}
-		} else {
-			p.Fresh = false
-		}
+func NewCached() *cached {
+	return &cached{
+		PCI:     New(),
+		Timeout: 5 * 60, // 5 minutes
 	}
-
-	return nil
-}
-
-// Refresh cache.
-func (p *pci) Refresh() error {
-	if err := p.get(); err != nil {
-		return err
-	}
-	p.Last = time.Now()
-	p.Fresh = true
-
-	return nil
 }
 
 // TODO: Cache PCI database as a map[string]string
@@ -188,7 +167,7 @@ func getPCIClass(classID string) (string, string, string, error) {
 	return class, subClass, progIntf, nil
 }
 
-func (p *pci) get() error {
+func (p *pcis) Get() error {
 	files, err := filepath.Glob("/sys/bus/pci/devices/*")
 	if err != nil {
 		return err
@@ -226,7 +205,7 @@ func (p *pci) get() error {
 			return err
 		}
 
-		p.Devices = append(p.Devices, device{
+		*p = append(*p, pci{
 			Slot:      slot[1],
 			ClassID:   classID,
 			Class:     class,
@@ -239,6 +218,35 @@ func (p *pci) get() error {
 			SName:     sName,
 		})
 	}
+
+	return nil
+}
+
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
+			return err
+		}
+	} else {
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := c.GetRefresh(); err != nil {
+				return err
+			}
+		} else {
+			c.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (c *cached) GetRefresh() error {
+	if err := c.PCI.Get(); err != nil {
+		return err
+	}
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }
