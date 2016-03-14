@@ -20,7 +20,7 @@ type Cached interface {
 	GetRefresh() error
 }
 
-type mounts []mounts
+type mounts []mount
 
 type mount struct {
 	Source  string `json:"source"`
@@ -66,12 +66,12 @@ func (mounts *mounts) Get() error {
 
 		m := mount{}
 
-		m.Source = vals[0]
-		m.Target = vals[1]
-		m.FSType = vals[2]
-		m.Options = vals[3]
+		m.Source = v[0]
+		m.Target = v[1]
+		m.FSType = v[2]
+		m.Options = v[3]
 
-		*mounts = append(mounts, m)
+		*mounts = append(*mounts, m)
 	}
 
 	return nil
@@ -97,7 +97,7 @@ func (c *cached) Get() error {
 }
 
 func (c *cached) GetRefresh() error {
-	if err := c.Routes.Get(); err != nil {
+	if err := c.Mounts.Get(); err != nil {
 		return err
 	}
 	c.LastUpdated = time.Now()
