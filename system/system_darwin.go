@@ -3,23 +3,19 @@
 package system
 
 import (
-	"time"
-
 	"github.com/mickep76/hwinfo/common"
 )
 
 type system struct {
-	Manufacturer   string    `json:"manufacturer"`
-	Product        string    `json:"product"`
-	ProductVersion string    `json:"product_version"`
-	SerialNumber   string    `json:"serial_number"`
-	BootROMVersion string    `json:"boot_rom_version"`
-	SMCVersion     string    `json:"smc_version"`
-	Last           time.Time `json:"last"`
-	TTL            int       `json:"ttl_sec"`
+	Manufacturer   string `json:"manufacturer"`
+	Product        string `json:"product"`
+	ProductVersion string `json:"product_version"`
+	SerialNumber   string `json:"serial_number"`
+	BootROMVersion string `json:"boot_rom_version"`
+	SMCVersion     string `json:"smc_version"`
 }
 
-func (s *system) get() error {
+func (s *system) Get() error {
 	s.Manufacturer = "Apple Inc."
 
 	o, err := common.ExecCmdFields("/usr/sbin/system_profiler", []string{"SPHardwareDataType"}, ":", []string{

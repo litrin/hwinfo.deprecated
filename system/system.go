@@ -5,45 +5,58 @@ import (
 )
 
 type System interface {
-	SetTTL(int)
 	Get() error
-	Refresh() error
 }
 
-// New system constructor.
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	GetRefresh() error
+}
+
+type cached struct {
+	System      *system   `json:"system"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
+}
+
 func New() *system {
-	return &system{
-		TTL: 12 * 60 * 60,
+	return &system{}
+}
+
+func NewCached() *cached {
+	return &cached{
+		System:  New(),
+		Timeout: 5 * 60, // 5 minutes
 	}
 }
 
-// Get info.
-func (s *system) Get() error {
-	if s.Last.IsZero() {
-		if err := s.Refresh(); err != nil {
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
 			return err
 		}
 	} else {
-		expire := s.Last.Add(time.Duration(s.TTL) * time.Second)
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := s.Refresh(); err != nil {
+			if err := c.GetRefresh(); err != nil {
 				return err
 			}
 		} else {
-			s.Fresh = false
+			c.FromCache = true
 		}
 	}
 
 	return nil
 }
 
-// Refresh cache.
-func (s *system) Refresh() error {
-	if err := s.get(); err != nil {
+func (c *cached) GetRefresh() error {
+	if err := c.System.Get(); err != nil {
 		return err
 	}
-	s.Last = time.Now()
-	s.Fresh = true
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }

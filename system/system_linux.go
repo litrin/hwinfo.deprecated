@@ -3,24 +3,20 @@
 package system
 
 import (
-	"time"
-
 	"github.com/mickep76/hwinfo/common"
 )
 
 type system struct {
-	Manufacturer   string    `json:"manufacturer"`
-	Product        string    `json:"product"`
-	ProductVersion string    `json:"product_version"`
-	SerialNumber   string    `json:"serial_number"`
-	BIOSVendor     string    `json:"bios_vendor"`
-	BIOSDate       string    `json:"bios_date"`
-	BIOSVersion    string    `json:"bios_version"`
-	Last           time.Time `json:"last"`
-	TTL            int       `json:"ttl_sec"`
+	Manufacturer   string `json:"manufacturer"`
+	Product        string `json:"product"`
+	ProductVersion string `json:"product_version"`
+	SerialNumber   string `json:"serial_number"`
+	BIOSVendor     string `json:"bios_vendor"`
+	BIOSDate       string `json:"bios_date"`
+	BIOSVersion    string `json:"bios_version"`
 }
 
-func (s *system) get() error {
+func (s *system) Get() error {
 	o, err := common.LoadFiles([]string{
 		"/sys/devices/virtual/dmi/id/chassis_vendor",
 		"/sys/devices/virtual/dmi/id/product_name",
