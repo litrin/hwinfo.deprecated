@@ -5,45 +5,58 @@ import (
 )
 
 type Memory interface {
-	SetTTL(int)
 	Get() error
-	Refresh() error
 }
 
-// New constructor.
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	GetRefresh() error
+}
+
+type cached struct {
+	Memory      *memory   `json:"memory"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
+}
+
 func New() *memory {
-	return &memory{
-		TTL: 5,
+	return &memory{}
+}
+
+func NewCached() *cached {
+	return &cached{
+		Memory:  New(),
+		Timeout: 5 * 60, // 5 minutes
 	}
 }
 
-// Get info.
-func (m *memory) Get() error {
-	if m.Last.IsZero() {
-		if err := m.Refresh(); err != nil {
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
 			return err
 		}
 	} else {
-		expire := m.Last.Add(time.Duration(m.TTL) * time.Second)
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := m.Refresh(); err != nil {
+			if err := c.GetRefresh(); err != nil {
 				return err
 			}
 		} else {
-			m.Fresh = false
+			c.FromCache = true
 		}
 	}
 
 	return nil
 }
 
-// Refresh cache.
-func (m *memory) Refresh() error {
-	if err := m.get(); err != nil {
+func (c *cached) GetRefresh() error {
+	if err := c.Memory.Get(); err != nil {
 		return err
 	}
-	m.Last = time.Now()
-	m.Fresh = true
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }

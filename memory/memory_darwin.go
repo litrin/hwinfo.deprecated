@@ -4,21 +4,16 @@ package memory
 
 import (
 	"strconv"
-	"time"
 
 	"github.com/mickep76/hwinfo/common"
 )
 
 type memory struct {
-	TotalKB int       `json:"total_kb"`
-	TotalGB int       `json:"total_gb"`
-	Last    time.Time `json:"last"`
-	TTL     int       `json:"ttl_sec"`
-	Fresh   bool      `json:"fresh"`
+	TotalKB int `json:"total_kb"`
+	TotalGB int `json:"total_gb"`
 }
 
-// Get memory info.
-func (m *memory) get() error {
+func (m *memory) Get() error {
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", []string{
 		"hw.memsize",
 	})
