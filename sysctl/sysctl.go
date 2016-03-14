@@ -1,61 +1,87 @@
+/*
+// +build linux
+*/
+
 package sysctl
 
 import (
+	"os/exec"
+	"strings"
 	"time"
 )
 
 type Sysctl interface {
-	SetTTL(int)
 	Get() error
-	Refresh() error
 }
+
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	GetRefresh() error
+}
+
+type sysctls []sysctl
 
 type sysctl struct {
-	Variables []variable `json:"variables"`
-	Last      time.Time  `json:"last"`
-	TTL       int        `json:"ttl_sec"`
-	Fresh     bool       `json:"fresh"`
-}
-
-type variable struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
-// New constructor.
-func New() *sysctl {
-	return &sysctl{
-		TTL: 5 * 60 * 60,
-	}
+type cached struct {
+	Sysctl      *sysctls  `json:"sysctl"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
 }
 
-// Get info.
-func (s *sysctl) Get() error {
-	if s.Last.IsZero() {
-		if err := s.Refresh(); err != nil {
+func (sysctls *sysctls) Get() error {
+	o, err := exec.Command("sysctl", "-a").Output()
+	if err != nil {
+		return err
+	}
+
+	for _, line := range strings.Split(string(o), "\n") {
+		vals := strings.Fields(line)
+		if len(vals) < 3 {
+			continue
+		}
+
+		s := sysctl{}
+
+		s.Key = vals[0]
+		s.Value = vals[2]
+
+		*sysctls = append(*sysctls, s)
+	}
+
+	return nil
+}
+
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
 			return err
 		}
 	} else {
-		expire := s.Last.Add(time.Duration(s.TTL) * time.Second)
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := s.Refresh(); err != nil {
+			if err := c.GetRefresh(); err != nil {
 				return err
 			}
 		} else {
-			s.Fresh = false
+			c.FromCache = true
 		}
 	}
 
 	return nil
 }
 
-// Refresh cache.
-func (s *sysctl) Refresh() error {
-	if err := s.get(); err != nil {
+func (c *cached) GetRefresh() error {
+	if err := c.Sysctl.Get(); err != nil {
 		return err
 	}
-	s.Last = time.Now()
-	s.Fresh = true
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }
