@@ -53,7 +53,9 @@ type cached struct {
 }
 
 func New() *dock2box {
-	return &dock2box{}
+	return &dock2box{
+		Layers: &layers{},
+	}
 }
 
 func NewCached() *cached {
