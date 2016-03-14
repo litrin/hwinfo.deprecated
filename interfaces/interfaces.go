@@ -1,30 +1,31 @@
-package network
+// +build linux
+
+package interfaces
 
 import (
 	"fmt"
-	"github.com/mickep76/hwinfo/common"
 	"net"
 	"os/exec"
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/mickep76/hwinfo/common"
 )
 
-type Network interface {
-	SetTTL(int)
+type Interfaces interface {
 	Get() error
-	Refresh() error
 }
 
-type network struct {
-	Interfaces    []Interface `json:"interfaces"`
-	OnloadVersion string      `json:"onload_version,omitempty"`
-	Last          time.Time   `json:"last"`
-	TTL           int         `json:"ttl_sec"`
-	Fresh         bool        `json:"fresh"`
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	GetRefresh() error
 }
 
-type Interface struct {
+type intfs []intf
+
+type intf struct {
 	Name            string   `json:"name"`
 	MTU             int      `json:"mtu"`
 	IPAddr          []string `json:"ipaddr"`
@@ -43,46 +44,25 @@ type Interface struct {
 	SwVLAN          string   `json:"sw_vlan"`
 }
 
-// New constructor.
-func New() *network {
-	return &network{
-		TTL: 60 * 60,
+type cached struct {
+	Interfaces  *intfs    `json:"interfaces"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
+}
+
+func New() *intfs {
+	return &intfs{}
+}
+
+func NewCached() *cached {
+	return &cached{
+		Interfaces: New(),
+		Timeout:    5 * 60, // 5 minutes
 	}
 }
 
-// Get info.
-func (n *network) Get() error {
-	if n.Last.IsZero() {
-		if err := n.Refresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := n.Last.Add(time.Duration(n.TTL) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := n.Refresh(); err != nil {
-				return err
-			}
-		} else {
-			n.Fresh = false
-		}
-	}
-
-	return nil
-}
-
-// Refresh cache.
-func (n *network) Refresh() error {
-	if err := n.get(); err != nil {
-		return err
-	}
-	n.Last = time.Now()
-	n.Fresh = true
-
-	return nil
-}
-
-func (n *network) get() error {
-	intfs, err := net.Interfaces()
+func (intfs *intfs) Get() error {
 	if err != nil {
 		return err
 	}
@@ -167,7 +147,7 @@ func (n *network) get() error {
 			nintf.SwVLAN = o2["VLAN"]
 		}
 
-		n.Interfaces = append(n.Interfaces, nintf)
+		*intfs = append(*intfs, nintf)
 	}
 
 	switch runtime.GOOS {
@@ -181,6 +161,35 @@ func (n *network) get() error {
 			n.OnloadVersion = o["Kernel module"]
 		}
 	}
+
+	return nil
+}
+
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
+			return err
+		}
+	} else {
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := c.GetRefresh(); err != nil {
+				return err
+			}
+		} else {
+			c.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (c *cached) GetRefresh() error {
+	if err := c.Interfaces.Get(); err != nil {
+		return err
+	}
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }
