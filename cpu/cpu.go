@@ -5,58 +5,68 @@ import (
 )
 
 type CPU interface {
-	SetTTL(int)
 	Get() error
-	Refresh() error
+}
+
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	GetRefresh() error
 }
 
 type cpu struct {
-	Model          string    `json:"model"`
-	Flags          string    `json:"flags"`
-	Logical        int       `json:"logical"`
-	Physical       int       `json:"physical"`
-	Sockets        int       `json:"sockets"`
-	CoresPerSocket int       `json:"cores_per_socket"`
-	ThreadsPerCore int       `json:"threads_per_core"`
-	Last           time.Time `json:"last"`
-	TTL            int       `json:"ttl_sec"`
-	Fresh          bool      `json:"fresh"`
+	Model          string `json:"model"`
+	Flags          string `json:"flags"`
+	Logical        int    `json:"logical"`
+	Physical       int    `json:"physical"`
+	Sockets        int    `json:"sockets"`
+	CoresPerSocket int    `json:"cores_per_socket"`
+	ThreadsPerCore int    `json:"threads_per_core"`
 }
 
-// New constructor.
+type cached struct {
+	CPU         *cpu      `json:"cpu"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
+}
+
 func New() *cpu {
-	return &cpu{
-		TTL: 12 * 60 * 60,
+	return &cpu{}
+}
+
+func NewCached() *cached {
+	return &cached{
+		CPU:     New(),
+		Timeout: 12 * 60 * 60, // 12 hours
 	}
 }
 
-// Get info.
-func (c *cpu) Get() error {
-	if c.Last.IsZero() {
-		if err := c.Refresh(); err != nil {
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
 			return err
 		}
 	} else {
-		expire := c.Last.Add(time.Duration(c.TTL) * time.Second)
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := c.Refresh(); err != nil {
+			if err := c.GetRefresh(); err != nil {
 				return err
 			}
 		} else {
-			c.Fresh = false
+			c.FromCache = true
 		}
 	}
 
 	return nil
 }
 
-// Refresh cache.
-func (c *cpu) Refresh() error {
-	if err := c.get(); err != nil {
+func (c *cached) GetRefresh() error {
+	if err := c.CPU.Get(); err != nil {
 		return err
 	}
-	c.Last = time.Now()
-	c.Fresh = true
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }

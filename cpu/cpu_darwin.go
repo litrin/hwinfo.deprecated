@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (c *cpu) get() error {
+func (c *cpu) Get() error {
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", []string{
 		"machdep.cpu.core_count",
 		"hw.physicalcpu_max",

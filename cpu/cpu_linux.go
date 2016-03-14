@@ -10,8 +10,7 @@ import (
 	"strings"
 )
 
-// Get memory info.
-func (c *cpu) get() error {
+func (c *cpu) Get() error {
 	if _, err := os.Stat("/proc/cpuinfo"); os.IsNotExist(err) {
 		return errors.New("file doesn't exist: /proc/cpuinfo")
 	}

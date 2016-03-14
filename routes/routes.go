@@ -14,7 +14,7 @@ type Routes interface {
 type Cached interface {
 	SetTimeout(int)
 	Get() error
-	Refresh() error
+	GetRefresh() error
 }
 
 type routes []route
@@ -38,16 +38,14 @@ type cached struct {
 }
 
 func New() *routes {
-	r := routes{}
-	return &r
+	return &routes{}
 }
 
 func NewCached() *cached {
-	c := cached{
+	return &cached{
 		Routes:  New(),
-		Timeout: 5 * 60 * 60,
+		Timeout: 5 * 60, // 5 minutes
 	}
-	return &c
 }
 
 func (routes *routes) Get() error {
@@ -94,13 +92,13 @@ func (routes *routes) Get() error {
 
 func (c *cached) Get() error {
 	if c.LastUpdated.IsZero() {
-		if err := c.Refresh(); err != nil {
+		if err := c.GetRefresh(); err != nil {
 			return err
 		}
 	} else {
 		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := c.Refresh(); err != nil {
+			if err := c.GetRefresh(); err != nil {
 				return err
 			}
 		} else {
@@ -111,7 +109,7 @@ func (c *cached) Get() error {
 	return nil
 }
 
-func (c *cached) Refresh() error {
+func (c *cached) GetRefresh() error {
 	if err := c.Routes.Get(); err != nil {
 		return err
 	}

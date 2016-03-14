@@ -7,7 +7,7 @@ import (
 
 	//	"github.com/mickep76/hwinfo/memory"
 	//	"github.com/mickep76/hwinfo/system"
-	//	"github.com/mickep76/hwinfo/cpu"
+	"github.com/mickep76/hwinfo/cpu"
 	//	"github.com/mickep76/hwinfo/network"
 	//	"github.com/mickep76/hwinfo/opsys"
 	//	"github.com/mickep76/hwinfo/pci"
@@ -16,11 +16,12 @@ import (
 	//	"github.com/mickep76/hwinfo/dock2box"
 	//	"github.com/mickep76/hwinfo/lvm"
 	//	"github.com/mickep76/hwinfo/mount"
-	"github.com/mickep76/hwinfo/routes"
+
+	//	"github.com/mickep76/hwinfo/routes"
 )
 
 func main() {
-	d := routes.NewCached()
+	d := cpu.NewCached()
 	if err := d.Get(); err != nil {
 		log.Fatal(err.Error())
 	}
