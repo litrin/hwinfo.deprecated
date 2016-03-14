@@ -3,11 +3,12 @@
 package opsys
 
 import (
-	"github.com/mickep76/hwinfo/common"
 	"runtime"
+
+	"github.com/mickep76/hwinfo/common"
 )
 
-func (op *opSys) get() error {
+func (op *opSys) Get() error {
 	o, err := common.ExecCmdFields("/usr/bin/sw_vers", []string{}, ":", []string{
 		"ProductName",
 		"ProductVersion",

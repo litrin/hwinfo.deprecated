@@ -3,11 +3,12 @@
 package opsys
 
 import (
-	"github.com/mickep76/hwinfo/common"
 	"runtime"
+
+	"github.com/mickep76/hwinfo/common"
 )
 
-func (op *opSys) get() error {
+func (op *opSys) Get() error {
 	o, err := common.ExecCmdFields("lsb_release", []string{"-a"}, ":", []string{
 		"Distributor ID",
 		"Release",

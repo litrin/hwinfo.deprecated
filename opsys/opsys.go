@@ -5,9 +5,13 @@ import (
 )
 
 type OpSys interface {
-	SetTTL(int)
 	Get() error
-	Refresh() error
+}
+
+type Cached interface {
+	SetTimeout(int)
+	Get() error
+	GetRefresh() error
 }
 
 type opSys struct {
@@ -20,40 +24,49 @@ type opSys struct {
 	Fresh          bool      `json:"fresh"`
 }
 
-// New constructor.
+type cached struct {
+	OpSys       *opSys    `json:"op_sys"`
+	LastUpdated time.Time `json:"last_updated"`
+	Timeout     int       `json:"timeout_sec"`
+	FromCache   bool      `json:"from_cache"`
+}
+
 func New() *opSys {
-	return &opSys{
-		TTL: 12 * 60 * 60,
+	return &opSys{}
+}
+
+func NewCached() *cached {
+	return &cached{
+		OpSys:   New(),
+		Timeout: 5 * 60, // 5 minutes
 	}
 }
 
-// Get info.
-func (op *opSys) Get() error {
-	if op.Last.IsZero() {
-		if err := op.Refresh(); err != nil {
+func (c *cached) Get() error {
+	if c.LastUpdated.IsZero() {
+		if err := c.GetRefresh(); err != nil {
 			return err
 		}
 	} else {
-		expire := op.Last.Add(time.Duration(op.TTL) * time.Second)
+		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := op.Refresh(); err != nil {
+			if err := c.GetRefresh(); err != nil {
 				return err
 			}
 		} else {
-			op.Fresh = false
+			c.FromCache = true
 		}
 	}
 
 	return nil
 }
 
-// Refresh cache.
-func (op *opSys) Refresh() error {
-	if err := op.get(); err != nil {
+func (c *cached) GetRefresh() error {
+	if err := c.OpSys.Get(); err != nil {
 		return err
 	}
-	op.Last = time.Now()
-	op.Fresh = true
+	c.LastUpdated = time.Now()
+	c.FromCache = false
 
 	return nil
 }
