@@ -20,15 +20,14 @@ import (
 )
 
 func main() {
-	d := routes.New()
-	err := d.Get()
-	if err != nil {
+	d := routes.NewCached()
+	if err := d.Get(); err != nil {
 		log.Fatal(err.Error())
 	}
 
-	b, err2 := json.MarshalIndent(d, "", "    ")
-	if err2 != nil {
-		fmt.Println(err2.Error())
+	b, err := json.MarshalIndent(d, "", "    ")
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 
 	fmt.Println(string(b))

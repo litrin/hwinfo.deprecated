@@ -104,7 +104,7 @@ func (c *cached) Get() error {
 				return err
 			}
 		} else {
-			c.FromCache = false
+			c.FromCache = true
 		}
 	}
 
@@ -116,7 +116,7 @@ func (c *cached) Refresh() error {
 		return err
 	}
 	c.LastUpdated = time.Now()
-	c.FromCache = true
+	c.FromCache = false
 
 	return nil
 }
