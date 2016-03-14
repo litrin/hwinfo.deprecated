@@ -34,6 +34,17 @@ type cached struct {
 	FromCache   bool      `json:"from_cache"`
 }
 
+func New() *sysctls {
+	return &sysctls{}
+}
+
+func NewCached() *cached {
+	return &cached{
+		Sysctl:  New(),
+		Timeout: 5 * 60, // 5 minutes
+	}
+}
+
 func (sysctls *sysctls) Get() error {
 	o, err := exec.Command("sysctl", "-a").Output()
 	if err != nil {
