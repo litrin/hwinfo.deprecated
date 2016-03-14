@@ -1,9 +1,16 @@
 package routes
 
-type Route interface {
-	SetTTL(int)
+import (
+	"os/exec"
+	"strconv"
+	"strings"
+)
+
+type Routes interface {
 	Get() error
 }
+
+type routes []route
 
 type route struct {
 	Destination string `json:"destination"`
@@ -16,27 +23,48 @@ type route struct {
 	Interface   string `json:"interface"`
 }
 
-// New memory constructor.
-func New() *route {
-	return &route{
-		TTL: 5 * 60,
-	}
+func New() *routes {
+	r := routes{}
+	return &r
 }
 
-// Get memory info.
-func (m *memory) Get() error {
-	if m.Last.IsZero() {
-		if err := m.get(); err != nil {
+func (routes *routes) Get() error {
+	o, err := exec.Command("netstat", "-rn").Output()
+	if err != nil {
+		return err
+	}
+
+	for c, line := range strings.Split(string(o), "\n") {
+		v := strings.Fields(line)
+		if c < 2 || len(v) < 8 {
+			continue
+		}
+
+		r := route{}
+
+		r.Destination = v[0]
+		r.Gateway = v[1]
+		r.Genmask = v[2]
+		r.Flags = v[3]
+
+		r.MSS, err = strconv.Atoi(v[4])
+		if err != nil {
 			return err
 		}
-		m.Last = time.Now()
-	} else {
-		expire := m.Last.Add(time.Duration(m.TTL) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := m.get(); err != nil {
-				return err
-			}
+
+		r.Window, err = strconv.Atoi(v[5])
+		if err != nil {
+			return err
 		}
+
+		r.IRTT, err = strconv.Atoi(v[6])
+		if err != nil {
+			return err
+		}
+
+		r.Interface = v[7]
+
+		*routes = append(*routes, r)
 	}
 
 	return nil
