@@ -5,14 +5,14 @@ import (
 )
 
 type CPU interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	Refresh() error
-	Data() *data
-	Cache() *cache
+	Update() error
+	ForceUpdate() error
 }
 
-type envelope struct {
+type cpu struct {
 	data  *data  `json:"data"`
 	cache *cache `json:"cache"`
 }
@@ -34,7 +34,7 @@ type cache struct {
 }
 
 func New() CPU {
-	return &envelope{
+	return &cpu{
 		data: &data{},
 		cache: &cache{
 			Timeout: 12 * 60 * 60, // 12 hours
@@ -42,33 +42,33 @@ func New() CPU {
 	}
 }
 
-func (e *envelope) Get() error {
-	if e.cache.LastUpdated.IsZero() {
-		if err := e.Refresh(); err != nil {
+func (c *cpu) Update() error {
+	if c.cache.LastUpdated.IsZero() {
+		if err := c.ForceUpdate(); err != nil {
 			return err
 		}
 	} else {
-		expire := e.cache.LastUpdated.Add(time.Duration(e.cache.Timeout) * time.Second)
+		expire := c.cache.LastUpdated.Add(time.Duration(c.cache.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := e.Refresh(); err != nil {
+			if err := c.ForceUpdate(); err != nil {
 				return err
 			}
 		} else {
-			e.cache.FromCache = true
+			c.cache.FromCache = true
 		}
 	}
 
 	return nil
 }
 
-func (e *envelope) SetTimeout(timeout int) {
-	e.cache.Timeout = timeout
+func (c *cpu) SetTimeout(timeout int) {
+	c.cache.Timeout = timeout
 }
 
-func (e *envelope) Data() *data {
-	return e.data
+func (c *cpu) GetData() data {
+	return *c.data
 }
 
-func (e *envelope) Cache() *cache {
-	return e.cache
+func (c *cpu) GetCache() cache {
+	return *c.cache
 }

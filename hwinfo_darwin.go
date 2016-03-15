@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	//"github.com/mickep76/hwinfo/cpu"
+	"github.com/mickep76/hwinfo/cpu"
 	//	"github.com/mickep76/hwinfo/interfaces"
 	//	"github.com/mickep76/hwinfo/memory"
 	//	"github.com/mickep76/hwinfo/opsys"
@@ -12,10 +12,10 @@ import (
 )
 
 type data struct {
-	Hostname      string `json:"hostname"`
-	ShortHostname string `json:"short_hostname"`
-	//	CPU           interface{} `json:"cpu"`
-	System interface{} `json:"system"`
+	Hostname      string      `json:"hostname"`
+	ShortHostname string      `json:"short_hostname"`
+	CPU           interface{} `json:"cpu"`
+	System        interface{} `json:"system"`
 
 	//	Memory        memory.Memory         `json:"memory"`
 	//	OpSys         opsys.OpSys           `json:"opsys"`
@@ -23,7 +23,7 @@ type data struct {
 }
 
 type cache struct {
-	//	CPU    interface{} `json:"cpu"`
+	CPU    interface{} `json:"cpu"`
 	System interface{} `json:"system"`
 
 	//	Memory     memory.Cached     `json:"memory"`
@@ -39,12 +39,12 @@ func (h *hwInfo) Update() error {
 	h.data.Hostname = host
 	h.data.ShortHostname = strings.Split(host, ".")[0]
 
-	//	cpu := cpu.New()
-	//	if err := cpu.Update(); err != nil {
-	//		return err
-	//	}
-	//	e.Data.CPU = cpu.GetData()
-	//	e.Cache.CPU = cpu.GetCache()
+	cpu := cpu.New()
+	if err := cpu.Update(); err != nil {
+		return err
+	}
+	h.data.CPU = cpu.GetData()
+	h.cache.CPU = cpu.GetCache()
 
 	system := system.New()
 	if err := system.Update(); err != nil {
