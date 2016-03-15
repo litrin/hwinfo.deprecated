@@ -31,13 +31,13 @@ type cached struct {
 	FromCache   bool      `json:"from_cache"`
 }
 
-func New() *opSys {
+func New() OpSys {
 	return &opSys{}
 }
 
-func NewCached() *cached {
+func NewCached() Cached {
 	return &cached{
-		OpSys:   New(),
+		OpSys:   &opSys{},
 		Timeout: 5 * 60, // 5 minutes
 	}
 }
@@ -69,4 +69,8 @@ func (c *cached) GetRefresh() error {
 	c.FromCache = false
 
 	return nil
+}
+
+func (c *cached) SetTimeout(timeout int) {
+	c.Timeout = timeout
 }

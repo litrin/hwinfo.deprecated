@@ -67,7 +67,7 @@ type cached struct {
 	FromCache   bool      `json:"from_cache"`
 }
 
-func New() *lvm {
+func New() LVM {
 	return &lvm{
 		PhysVols: &physVols{},
 		LogVols:  &logVols{},
@@ -75,7 +75,7 @@ func New() *lvm {
 	}
 }
 
-func NewCached() *cached {
+func NewCached() Cached {
 	return &cached{
 		LVM:     New(),
 		Timeout: 5 * 60, // 5 minutes
@@ -247,4 +247,8 @@ func (c *cached) GetRefresh() error {
 	c.FromCache = false
 
 	return nil
+}
+
+func (c *cached) SetTimeout(timeout int) {
+	c.Timeout = timeout
 }

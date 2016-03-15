@@ -52,13 +52,13 @@ type cached struct {
 	FromCache   bool      `json:"from_cache"`
 }
 
-func New() *dock2box {
+func New() Dock2Box {
 	return &dock2box{
 		Layers: &layers{},
 	}
 }
 
-func NewCached() *cached {
+func NewCached() Cached {
 	return &cached{
 		Dock2Box: New(),
 		Timeout:  12 * 60 * 60, // 12 hours
@@ -136,4 +136,8 @@ func (c *cached) GetRefresh() error {
 	c.FromCache = false
 
 	return nil
+}
+
+func (c *cached) SetTimeout(timeout int) {
+	c.Timeout = timeout
 }
