@@ -1,4 +1,6 @@
+/*
 // +build linux
+*/
 
 package disks
 
@@ -11,43 +13,74 @@ import (
 )
 
 type Disks interface {
-	Get() error
-}
-
-type Cached interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	GetRefresh() error
+	Update() error
+	ForceUpdate() error
 }
 
-type disks []disk
+type disks struct {
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
+}
 
-type disk struct {
+type data []dataItem
+
+type dataItem struct {
 	Device string `json:"device"`
 	Name   string `json:"name"`
 	SizeKB int    `json:"size_kb"`
 	SizeGB int    `json:"size_gb"`
 }
 
-type cached struct {
-	Disks       *disks    `json:"disks"`
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
 }
 
 func New() Disks {
-	return &disks{}
-}
-
-func NewCached() Cached {
-	return &cached{
-		Disks:   &disks{},
-		Timeout: 5 * 60, // 5 minutes
+	return &disks{
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
+		},
 	}
 }
 
-func (disks *disks) Get() error {
+func (d *disks) GetData() data {
+	return *d.data
+}
+
+func (d *disks) GetCache() cache {
+	return *d.cache
+}
+
+func (d *disks) SetTimeout(timeout int) {
+	d.cache.Timeout = timeout
+}
+
+func (d *disks) Update() error {
+	if d.cache.LastUpdated.IsZero() {
+		if err := d.ForceUpdate(); err != nil {
+			return err
+		}
+	} else {
+		expire := d.cache.LastUpdated.Add(time.Duration(d.cache.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := d.ForceUpdate(); err != nil {
+				return err
+			}
+		} else {
+			d.cache.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (disks *disks) ForceUpdate() error {
 	files, err := filepath.Glob("/sys/class/block/*")
 	if err != nil {
 		return err
@@ -62,7 +95,7 @@ func (disks *disks) Get() error {
 			return err
 		}
 
-		d := disk{}
+		d := dataItem{}
 
 		d.Name = filepath.Base(path)
 		d.Device = o["dev"]
@@ -74,41 +107,8 @@ func (disks *disks) Get() error {
 		d.SizeKB = d.SizeKB * 512 / 1024
 		d.SizeGB = d.SizeKB / 1024 / 1024
 
-		*disks = append(*disks, d)
+		*disks.data = append(*disks.data, d)
 	}
 
 	return nil
-}
-
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
-				return err
-			}
-		} else {
-			c.FromCache = true
-		}
-	}
-
-	return nil
-}
-
-func (c *cached) GetRefresh() error {
-	if err := c.Disks.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
-}
-
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
 }

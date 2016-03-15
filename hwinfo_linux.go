@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/mickep76/hwinfo/cpu"
-	//	"github.com/mickep76/hwinfo/disks"
-	//	"github.com/mickep76/hwinfo/dock2box"
+	"github.com/mickep76/hwinfo/disks"
+	"github.com/mickep76/hwinfo/dock2box"
 	"github.com/mickep76/hwinfo/interfaces"
 	//	"github.com/mickep76/hwinfo/lvm"
 	"github.com/mickep76/hwinfo/memory"
@@ -22,9 +22,9 @@ type data struct {
 	Hostname      string      `json:"hostname"`
 	ShortHostname string      `json:"short_hostname"`
 	CPU           interface{} `json:"cpu"`
-	//	Disks         interface{}           `json:"disks"`
-	//	Dock2Box      interface{}     `json:"dock2box"`
-	Interfaces interface{} `json:"interfaces"`
+	Disks         interface{} `json:"disks"`
+	Dock2Box      interface{} `json:"dock2box"`
+	Interfaces    interface{} `json:"interfaces"`
 	//	LVM           interface{]               `json:"lvm"`
 	Memory interface{} `json:"memory"`
 	//	Mounts        interface{}         `json:"mounts"`
@@ -36,9 +36,9 @@ type data struct {
 }
 
 type cache struct {
-	CPU interface{} `json:"cpu"`
-	//  Disks         interface{}           `json:"disks"`
-	//  Dock2Box      interface{}     `json:"dock2box"`
+	CPU        interface{} `json:"cpu"`
+	Disks      interface{} `json:"disks"`
+	Dock2Box   interface{} `json:"dock2box"`
 	Interfaces interface{} `json:"interfaces"`
 	//  LVM           interface{}              `json:"lvm"`
 	Memory interface{} `json:"memory"`
@@ -92,6 +92,20 @@ func (h *hwInfo) Update() error {
 	}
 	h.data.OpSys = opSys.GetData()
 	h.cache.OpSys = opSys.GetCache()
+
+	disks := disks.New()
+	if err := disks.Update(); err != nil {
+		return err
+	}
+	h.data.Disks = Disks.GetData()
+	h.cache.Disks = Disks.GetCache()
+
+	dock2box := dock2box.New()
+	if err := dock2box.Update(); err != nil {
+		return err
+	}
+	h.data.Dock2Box = dock2box.GetData()
+	h.cache.dock2Box = dock2box.GetCache()
 
 	return nil
 }

@@ -1,4 +1,6 @@
+/*
 // +build linux
+*/
 
 package dock2box
 
@@ -14,13 +16,16 @@ import (
 )
 
 type Dock2Box interface {
-	Get() error
+	GetData() data
+	GetCache() cache
+	SetTimeout(int)
+	Update() error
+	ForceUpdate() error
 }
 
-type Cached interface {
-	SetTimeout(int)
-	Get() error
-	GetRefresh() error
+type dock2box struct {
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
 }
 
 type layers []layer
@@ -39,14 +44,13 @@ type layer struct {
 	CFlagsMarchNative string `json:"cflags_march_native"`
 }
 
-type dock2box struct {
-	FirstBoot string  `json:"firstboot"`
-	CFlags    string  `json:"cflags_march_native"`
-	Layers    *layers `json:"layers"`
+type data struct {
+	FirstBoot string `json:"firstboot"`
+	CFlags    string `json:"cflags_march_native"`
+	Layers    layers `json:"layers"`
 }
 
-type cached struct {
-	Dock2Box    *dock2box `json:"dock2box"`
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
@@ -54,20 +58,48 @@ type cached struct {
 
 func New() Dock2Box {
 	return &dock2box{
-		Layers: &layers{},
-	}
-}
-
-func NewCached() Cached {
-	return &cached{
-		Dock2Box: &dock2box{
-			Layers: &layers{},
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
 		},
-		Timeout: 12 * 60 * 60, // 12 hours
 	}
 }
 
-func (d *dock2box) Get() error {
+func (d *dock2box) GetData() data {
+	return *d.data
+}
+
+func (d *dock2box) GetCache() cache {
+	return *d.cache
+}
+
+func (d *dock2box) SetTimeout(timeout int) {
+	d.cache.Timeout = timeout
+}
+
+func (d *dock2box) Update() error {
+	if d.cache.LastUpdated.IsZero() {
+		if err := d.ForceUpdate(); err != nil {
+			return err
+		}
+	} else {
+		expire := d.cache.LastUpdated.Add(time.Duration(d.cache.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := d.ForceUpdate(); err != nil {
+				return err
+			}
+		} else {
+			d.cache.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (d *dock2box) ForceUpdate() error {
+	d.cache.LastUpdated = time.Now()
+	d.cache.FromCache = false
+
 	file := "/etc/dock2box/firstboot.json"
 	if _, err := os.Stat(file); os.IsNotExist(err) {
 		return fmt.Errorf("file doesn't exist: %s", file)
@@ -105,41 +137,8 @@ func (d *dock2box) Get() error {
 		fn := path.Base(file)
 		l.Layer = strings.TrimSuffix(fn, filepath.Ext(fn))
 
-		*d.Layers = append(*d.Layers, l)
+		d.data.Layers = append(d.data.Layers, l)
 	}
 
 	return nil
-}
-
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
-				return err
-			}
-		} else {
-			c.FromCache = true
-		}
-	}
-
-	return nil
-}
-
-func (c *cached) GetRefresh() error {
-	if err := c.Dock2Box.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
-}
-
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
 }
