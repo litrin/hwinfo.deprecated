@@ -11,7 +11,7 @@ import (
 	//	"github.com/mickep76/hwinfo/lvm"
 	"github.com/mickep76/hwinfo/memory"
 	//	"github.com/mickep76/hwinfo/mounts"
-	//	"github.com/mickep76/hwinfo/opsys"
+	"github.com/mickep76/hwinfo/opsys"
 	//	"github.com/mickep76/hwinfo/pci"
 	//	"github.com/mickep76/hwinfo/routes"
 	//	"github.com/mickep76/hwinfo/sysctl"
@@ -22,31 +22,31 @@ type data struct {
 	Hostname      string      `json:"hostname"`
 	ShortHostname string      `json:"short_hostname"`
 	CPU           interface{} `json:"cpu"`
-	//	Disks         disks.Disks           `json:"disks"`
-	//	Dock2Box      dock2box.Dock2Box     `json:"dock2box"`
+	//	Disks         interface{}           `json:"disks"`
+	//	Dock2Box      interface{}     `json:"dock2box"`
 	Interfaces interface{} `json:"interfaces"`
-	//	LVM           lvm.LVM               `json:"lvm"`
+	//	LVM           interface{]               `json:"lvm"`
 	Memory interface{} `json:"memory"`
-	//	Mounts        mounts.Mounts         `json:"mounts"`
-	//	OpSys         opsys.OpSys           `json:"opsys"`
-	//	PCI           pci.PCI               `json:"pci"`
-	//	Routes        routes.Routes         `json:"routes"`
-	//	Sysctl        sysctl.Sysctl         `json:"sysctl"`
+	//	Mounts        interface{}         `json:"mounts"`
+	OpSys interface{} `json:"opsys"`
+	//	PCI           interface{}               `json:"pci"`
+	//	Routes        interface{}         `json:"routes"`
+	//	Sysctl        interface{}         `json:"sysctl"`
 	System interface{} `json:"system"`
 }
 
 type cache struct {
 	CPU interface{} `json:"cpu"`
-	//  Disks         disks.Disks           `json:"disks"`
-	//  Dock2Box      dock2box.Dock2Box     `json:"dock2box"`
+	//  Disks         interface{}           `json:"disks"`
+	//  Dock2Box      interface{}     `json:"dock2box"`
 	Interfaces interface{} `json:"interfaces"`
-	//  LVM           lvm.LVM               `json:"lvm"`
+	//  LVM           interface{}              `json:"lvm"`
 	Memory interface{} `json:"memory"`
-	//  Mounts        mounts.Mounts         `json:"mounts"`
-	//  OpSys         opsys.OpSys           `json:"opsys"`
-	//  PCI           pci.PCI               `json:"pci"`
-	//  Routes        routes.Routes         `json:"routes"`
-	//  Sysctl        sysctl.Sysctl         `json:"sysctl"`
+	//  Mounts        interface{}         `json:"mounts"`
+	OpSys interface{} `json:"opsys"`
+	//  PCI           interface{}            `json:"pci"`
+	//  Routes        interface{}        `json:"routes"`
+	//  Sysctl        interface{}         `json:"sysctl"`
 	System interface{} `json:"system"`
 }
 
@@ -85,6 +85,13 @@ func (h *hwInfo) Update() error {
 	}
 	h.data.Interfaces = interfaces.GetData()
 	h.cache.Interfaces = interfaces.GetCache()
+
+	opSys := opsys.New()
+	if err := opSys.Update(); err != nil {
+		return err
+	}
+	h.data.OpSys = opSys.GetData()
+	h.cache.OpSys = opSys.GetCache()
 
 	return nil
 }
