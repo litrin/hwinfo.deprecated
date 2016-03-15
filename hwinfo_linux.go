@@ -97,15 +97,15 @@ func (h *hwInfo) Update() error {
 	if err := disks.Update(); err != nil {
 		return err
 	}
-	h.data.Disks = Disks.GetData()
-	h.cache.Disks = Disks.GetCache()
+	h.data.Disks = disks.GetData()
+	h.cache.Disks = disks.GetCache()
 
 	dock2box := dock2box.New()
 	if err := dock2box.Update(); err != nil {
 		return err
 	}
 	h.data.Dock2Box = dock2box.GetData()
-	h.cache.dock2Box = dock2box.GetCache()
+	h.cache.Dock2Box = dock2box.GetCache()
 
 	return nil
 }

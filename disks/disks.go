@@ -1,6 +1,4 @@
-/*
 // +build linux
-*/
 
 package disks
 

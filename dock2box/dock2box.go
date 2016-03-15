@@ -1,6 +1,4 @@
-/*
 // +build linux
-*/
 
 package dock2box
 
@@ -110,7 +108,7 @@ func (d *dock2box) ForceUpdate() error {
 		return err
 	}
 
-	if err := json.Unmarshal(o, &d); err != nil {
+	if err := json.Unmarshal(o, d.data); err != nil {
 		return err
 	}
 
