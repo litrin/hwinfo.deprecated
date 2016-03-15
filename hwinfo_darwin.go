@@ -15,6 +15,10 @@ type HWInfo interface {
 	Get() error
 }
 
+type Cached interface {
+	Get() error
+}
+
 type hwInfo struct {
 	Hostname      string                `json:"hostname"`
 	ShortHostname string                `json:"short_hostname"`
@@ -25,8 +29,22 @@ type hwInfo struct {
 	Interfaces    interfaces.Interfaces `json:"interfaces"`
 }
 
+type cached struct {
+	Hostname      string            `json:"hostname"`
+	ShortHostname string            `json:"short_hostname"`
+	CPU           cpu.Cached        `json:"cpu"`
+	Memory        memory.Cached     `json:"memory"`
+	OpSys         opsys.Cached      `json:"opsys"`
+	System        system.Cached     `json:"system"`
+	Interfaces    interfaces.Cached `json:"interfaces"`
+}
+
 func New() HWInfo {
 	return &hwInfo{}
+}
+
+func NewCached() Cached {
+	return &cached{}
 }
 
 func (hwi *hwInfo) Get() error {
@@ -59,6 +77,42 @@ func (hwi *hwInfo) Get() error {
 
 	hwi.Interfaces = interfaces.New()
 	if err := hwi.Interfaces.Get(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *cached) Get() error {
+	host, err := os.Hostname()
+	if err != nil {
+		return err
+	}
+	c.Hostname = host
+	c.ShortHostname = strings.Split(host, ".")[0]
+
+	c.CPU = cpu.NewCached()
+	if err := c.CPU.Get(); err != nil {
+		return err
+	}
+
+	c.Memory = memory.NewCached()
+	if err := c.Memory.Get(); err != nil {
+		return err
+	}
+
+	c.OpSys = opsys.NewCached()
+	if err := c.OpSys.Get(); err != nil {
+		return err
+	}
+
+	c.System = system.NewCached()
+	if err := c.System.Get(); err != nil {
+		return err
+	}
+
+	c.Interfaces = interfaces.NewCached()
+	if err := c.Interfaces.Get(); err != nil {
 		return err
 	}
 
