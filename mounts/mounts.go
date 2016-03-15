@@ -11,43 +11,77 @@ import (
 )
 
 type Mounts interface {
-	Get() error
-}
-
-type Cached interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	GetRefresh() error
+	Update() error
+	ForceUpdate() error
 }
 
-type mounts []mount
+type mounts struct {
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
+}
 
-type mount struct {
+type data []dataItem
+
+type dataItem struct {
 	Source  string `json:"source"`
 	Target  string `json:"target"`
 	FSType  string `json:"fs_type"`
 	Options string `json:"options"`
 }
 
-type cached struct {
-	Mounts      *mounts   `json:"mounts"`
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
 }
 
 func New() Mounts {
-	return &mounts{}
-}
-
-func NewCached() Cached {
-	return &cached{
-		Mounts:  &mounts{},
-		Timeout: 5 * 60, // 5 minutes
+	return &mounts{
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
+		},
 	}
 }
 
-func (mounts *mounts) Get() error {
+func (m *mounts) GetData() data {
+	return *m.data
+}
+
+func (m *mounts) GetCache() cache {
+	return *m.cache
+}
+
+func (m *mounts) SetTimeout(timeout int) {
+	m.cache.Timeout = timeout
+}
+
+func (m *mounts) Update() error {
+	if m.cache.LastUpdated.IsZero() {
+		if err := m.ForceUpdate(); err != nil {
+			return err
+		}
+	} else {
+		expire := m.cache.LastUpdated.Add(time.Duration(m.cache.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := m.ForceUpdate(); err != nil {
+				return err
+			}
+		} else {
+			m.cache.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (mounts *mounts) ForceUpdate() error {
+	mounts.cache.LastUpdated = time.Now()
+	mounts.cache.FromCache = false
+
 	fn := "/proc/mounts"
 	if _, err := os.Stat(fn); os.IsNotExist(err) {
 		return fmt.Errorf("file doesn't exist: %s", fn)
@@ -64,48 +98,15 @@ func (mounts *mounts) Get() error {
 			continue
 		}
 
-		m := mount{}
+		m := dataItem{}
 
 		m.Source = v[0]
 		m.Target = v[1]
 		m.FSType = v[2]
 		m.Options = v[3]
 
-		*mounts = append(*mounts, m)
+		*mounts.data = append(*mounts.data, m)
 	}
 
 	return nil
-}
-
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
-				return err
-			}
-		} else {
-			c.FromCache = true
-		}
-	}
-
-	return nil
-}
-
-func (c *cached) GetRefresh() error {
-	if err := c.Mounts.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
-}
-
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/mickep76/hwinfo/interfaces"
 	//	"github.com/mickep76/hwinfo/lvm"
 	"github.com/mickep76/hwinfo/memory"
-	//	"github.com/mickep76/hwinfo/mounts"
+	"github.com/mickep76/hwinfo/mounts"
 	"github.com/mickep76/hwinfo/opsys"
 	//	"github.com/mickep76/hwinfo/pci"
 	//	"github.com/mickep76/hwinfo/routes"
@@ -27,8 +27,8 @@ type data struct {
 	Interfaces    interface{} `json:"interfaces"`
 	//	LVM           interface{]               `json:"lvm"`
 	Memory interface{} `json:"memory"`
-	//	Mounts        interface{}         `json:"mounts"`
-	OpSys interface{} `json:"opsys"`
+	Mounts interface{} `json:"mounts"`
+	OpSys  interface{} `json:"opsys"`
 	//	PCI           interface{}               `json:"pci"`
 	//	Routes        interface{}         `json:"routes"`
 	//	Sysctl        interface{}         `json:"sysctl"`
@@ -42,8 +42,8 @@ type cache struct {
 	Interfaces interface{} `json:"interfaces"`
 	//  LVM           interface{}              `json:"lvm"`
 	Memory interface{} `json:"memory"`
-	//  Mounts        interface{}         `json:"mounts"`
-	OpSys interface{} `json:"opsys"`
+	Mounts interface{} `json:"mounts"`
+	OpSys  interface{} `json:"opsys"`
 	//  PCI           interface{}            `json:"pci"`
 	//  Routes        interface{}        `json:"routes"`
 	//  Sysctl        interface{}         `json:"sysctl"`
@@ -106,6 +106,13 @@ func (h *hwInfo) Update() error {
 	}
 	h.data.Dock2Box = dock2box.GetData()
 	h.cache.Dock2Box = dock2box.GetCache()
+
+	mounts := mounts.New()
+	if err := mounts.Update(); err != nil {
+		return err
+	}
+	h.data.Mounts = mounts.GetData()
+	h.cache.Mounts = mounts.GetCache()
 
 	return nil
 }
