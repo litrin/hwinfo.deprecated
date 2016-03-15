@@ -8,7 +8,7 @@ import (
 	"github.com/mickep76/hwinfo/disks"
 	"github.com/mickep76/hwinfo/dock2box"
 	"github.com/mickep76/hwinfo/interfaces"
-	//	"github.com/mickep76/hwinfo/lvm"
+	"github.com/mickep76/hwinfo/lvm"
 	"github.com/mickep76/hwinfo/memory"
 	"github.com/mickep76/hwinfo/mounts"
 	"github.com/mickep76/hwinfo/opsys"
@@ -25,7 +25,7 @@ type data struct {
 	Disks         interface{} `json:"disks"`
 	Dock2Box      interface{} `json:"dock2box"`
 	Interfaces    interface{} `json:"interfaces"`
-	//	LVM           interface{]               `json:"lvm"`
+	LVM           interface{]               `json:"lvm"`
 	Memory interface{} `json:"memory"`
 	Mounts interface{} `json:"mounts"`
 	OpSys  interface{} `json:"opsys"`
@@ -40,7 +40,7 @@ type cache struct {
 	Disks      interface{} `json:"disks"`
 	Dock2Box   interface{} `json:"dock2box"`
 	Interfaces interface{} `json:"interfaces"`
-	//  LVM           interface{}              `json:"lvm"`
+	LVM           interface{}              `json:"lvm"`
 	Memory interface{} `json:"memory"`
 	Mounts interface{} `json:"mounts"`
 	OpSys  interface{} `json:"opsys"`
@@ -134,6 +134,13 @@ func (h *hwInfo) Update() error {
 	}
 	h.data.Routes = routes.GetData()
 	h.cache.Routes = routes.GetCache()
+
+    lvm := lvm.New()
+    if err := lvm.Update(); err != nil {
+        return err
+    }
+    h.data.LVM = lvm.GetData()
+    h.cache.LVM = lvm.GetCache()
 
 	return nil
 }
