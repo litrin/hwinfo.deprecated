@@ -29,6 +29,11 @@ type hwInfo struct {
 	Interfaces    interfaces.Interfaces `json:"interfaces"`
 }
 
+type envelope struct {
+	data   HWInfo `json:"data"`
+	cached Cached `json:"cached"`
+}
+
 type cached struct {
 	Hostname      string            `json:"hostname"`
 	ShortHostname string            `json:"short_hostname"`

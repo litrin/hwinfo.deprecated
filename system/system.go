@@ -5,62 +5,60 @@ import (
 )
 
 type System interface {
-	Get() error
-}
-
-type Cached interface {
 	SetTimeout(int)
 	Get() error
-	GetRefresh() error
+	Refresh() error
+	Data() *data
+	Cache() *cache
 }
 
-type cached struct {
-	System      *system   `json:"system"`
+type envelope struct {
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
+}
+
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
 }
 
 func New() System {
-	return &system{}
-}
-
-func NewCached() Cached {
-	return &cached{
-		System:  &system{},
-		Timeout: 5 * 60, // 5 minutes
+	return &envelope{
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
+		},
 	}
 }
 
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
+func (e *envelope) Get() error {
+	if e.cache.LastUpdated.IsZero() {
+		if err := e.Refresh(); err != nil {
 			return err
 		}
 	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
+		expire := e.cache.LastUpdated.Add(time.Duration(e.cache.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
+			if err := e.Refresh(); err != nil {
 				return err
 			}
 		} else {
-			c.FromCache = true
+			e.cache.FromCache = true
 		}
 	}
 
 	return nil
 }
 
-func (c *cached) GetRefresh() error {
-	if err := c.System.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
+func (e *envelope) SetTimeout(timeout int) {
+	e.cache.Timeout = timeout
 }
 
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
+func (e *envelope) Data() *data {
+	return e.data
+}
+
+func (e *envelope) Cache() *cache {
+	return e.cache
 }

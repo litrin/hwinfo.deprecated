@@ -3,12 +3,17 @@
 package cpu
 
 import (
-	"github.com/mickep76/hwinfo/common"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/mickep76/hwinfo/common"
 )
 
-func (c *cpu) Get() error {
+func (e *envelope) Refresh() error {
+	e.cache.LastUpdated = time.Now()
+	e.cache.FromCache = false
+
 	o, err := common.ExecCmdFields("/usr/sbin/sysctl", []string{"-a"}, ":", []string{
 		"machdep.cpu.core_count",
 		"hw.physicalcpu_max",
@@ -20,25 +25,25 @@ func (c *cpu) Get() error {
 		return err
 	}
 
-	c.CoresPerSocket, err = strconv.Atoi(o["machdep.cpu.core_count"])
+	e.data.CoresPerSocket, err = strconv.Atoi(o["machdep.cpu.core_count"])
 	if err != nil {
 		return err
 	}
 
-	c.Physical, err = strconv.Atoi(o["hw.physicalcpu_max"])
+	e.data.Physical, err = strconv.Atoi(o["hw.physicalcpu_max"])
 	if err != nil {
 		return err
 	}
 
-	c.Logical, err = strconv.Atoi(o["hw.logicalcpu_max"])
+	e.data.Logical, err = strconv.Atoi(o["hw.logicalcpu_max"])
 	if err != nil {
 		return err
 	}
 
-	c.Sockets = c.Physical / c.CoresPerSocket
-	c.ThreadsPerCore = c.Logical / c.Sockets / c.CoresPerSocket
-	c.Model = o["machdep.cpu.brand_string"]
-	c.Flags = strings.ToLower(o["machdep.cpu.features"])
+	e.data.Sockets = e.data.Physical / e.data.CoresPerSocket
+	e.data.ThreadsPerCore = e.data.Logical / e.data.Sockets / e.data.CoresPerSocket
+	e.data.Model = o["machdep.cpu.brand_string"]
+	e.data.Flags = strings.ToLower(o["machdep.cpu.features"])
 
 	return nil
 }

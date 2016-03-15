@@ -6,17 +6,20 @@ import (
 	"github.com/mickep76/hwinfo/common"
 )
 
-type system struct {
-	Manufacturer   string `json:"manufacturer"`
-	Product        string `json:"product"`
-	ProductVersion string `json:"product_version"`
-	SerialNumber   string `json:"serial_number"`
-	BIOSVendor     string `json:"bios_vendor"`
-	BIOSDate       string `json:"bios_date"`
-	BIOSVersion    string `json:"bios_version"`
+type data struct {
+	manufacturer   string `json:"manufacturer"`
+	product        string `json:"product"`
+	productVersion string `json:"product_version"`
+	serialNumber   string `json:"serial_number"`
+	biosVendor     string `json:"bios_vendor"`
+	biosDate       string `json:"bios_date"`
+	biosVersion    string `json:"bios_version"`
 }
 
-func (s *system) Get() error {
+func (e *envelope) Refresh() error {
+	e.cache.lastUpdated = time.Now()
+	e.cache.fromCache = false
+
 	o, err := common.LoadFiles([]string{
 		"/sys/devices/virtual/dmi/id/chassis_vendor",
 		"/sys/devices/virtual/dmi/id/product_name",
@@ -30,13 +33,13 @@ func (s *system) Get() error {
 		return err
 	}
 
-	s.Manufacturer = o["chassis_vendor"]
-	s.Product = o["product_name"]
-	s.ProductVersion = o["product_version"]
-	s.SerialNumber = o["product_serial"]
-	s.BIOSVendor = o["bios_vendor"]
-	s.BIOSDate = o["bios_date"]
-	s.BIOSVersion = o["bios_version"]
+	e.data.manufacturer = o["chassis_vendor"]
+	e.data.product = o["product_name"]
+	e.data.productVersion = o["product_version"]
+	e.data.serialNumber = o["product_serial"]
+	e.data.biosVendor = o["bios_vendor"]
+	e.data.biosDate = o["bios_date"]
+	e.data.biosVersion = o["bios_version"]
 
 	return nil
 }

@@ -3,10 +3,12 @@
 package system
 
 import (
+	"time"
+
 	"github.com/mickep76/hwinfo/common"
 )
 
-type system struct {
+type data struct {
 	Manufacturer   string `json:"manufacturer"`
 	Product        string `json:"product"`
 	ProductVersion string `json:"product_version"`
@@ -15,8 +17,10 @@ type system struct {
 	SMCVersion     string `json:"smc_version"`
 }
 
-func (s *system) Get() error {
-	s.Manufacturer = "Apple Inc."
+func (e *envelope) Refresh() error {
+	e.cache.LastUpdated = time.Now()
+	e.cache.FromCache = false
+	e.data.Manufacturer = "Apple Inc."
 
 	o, err := common.ExecCmdFields("/usr/sbin/system_profiler", []string{"SPHardwareDataType"}, ":", []string{
 		"Model Name",
@@ -29,11 +33,11 @@ func (s *system) Get() error {
 		return err
 	}
 
-	s.Product = o["Model Name"]
-	s.ProductVersion = o["Model Identifier"]
-	s.SerialNumber = o["Serial Number"]
-	s.BootROMVersion = o["Boot ROM Version"]
-	s.SMCVersion = o["SMC Version"]
+	e.data.Product = o["Model Name"]
+	e.data.ProductVersion = o["Model Identifier"]
+	e.data.SerialNumber = o["Serial Number"]
+	e.data.BootROMVersion = o["Boot ROM Version"]
+	e.data.SMCVersion = o["SMC Version"]
 
 	return nil
 }
