@@ -1,5 +1,6 @@
+/*
 // +build linux
-
+*/
 package pci
 
 import (
@@ -14,18 +15,21 @@ import (
 )
 
 type PCI interface {
-	Get() error
-}
-
-type Cached interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	GetRefresh() error
+	Update() error
+	ForceUpdate() error
 }
-
-type pcis []pci
 
 type pci struct {
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
+}
+
+type data []dataItem
+
+type dataItem struct {
 	Slot      string `json:"slot"`
 	ClassID   string `json:"class_id"`
 	Class     string `json:"class"`
@@ -38,22 +42,50 @@ type pci struct {
 	SName     string `json:"sname"`
 }
 
-type cached struct {
-	PCI         *pcis     `json:"pci"`
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
 }
 
 func New() PCI {
-	return &pcis{}
+	return &pci{
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
+		},
+	}
 }
 
-func NewCached() Cached {
-	return &cached{
-		PCI:     &pcis{},
-		Timeout: 5 * 60, // 5 minutes
+func (p *pci) GetData() data {
+	return *p.data
+}
+
+func (p *pci) GetCache() cache {
+	return *p.cache
+}
+
+func (p *pci) SetTimeout(timeout int) {
+	p.cache.Timeout = timeout
+}
+
+func (p *pci) Update() error {
+	if p.cache.LastUpdated.IsZero() {
+		if err := p.ForceUpdate(); err != nil {
+			return err
+		}
+	} else {
+		expire := p.cache.LastUpdated.Add(time.Duration(p.cache.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := p.ForceUpdate(); err != nil {
+				return err
+			}
+		} else {
+			p.cache.FromCache = true
+		}
 	}
+
+	return nil
 }
 
 // TODO: Cache PCI database as a map[string]string
@@ -169,7 +201,10 @@ func getPCIClass(classID string) (string, string, string, error) {
 	return class, subClass, progIntf, nil
 }
 
-func (p *pcis) Get() error {
+func (p *pci) ForceUpdate() error {
+	p.cache.LastUpdated = time.Now()
+	p.cache.FromCache = false
+
 	files, err := filepath.Glob("/sys/bus/pci/devices/*")
 	if err != nil {
 		return err
@@ -207,7 +242,7 @@ func (p *pcis) Get() error {
 			return err
 		}
 
-		*p = append(*p, pci{
+		*p.data = append(*p.data, dataItem{
 			Slot:      slot[1],
 			ClassID:   classID,
 			Class:     class,
@@ -222,37 +257,4 @@ func (p *pcis) Get() error {
 	}
 
 	return nil
-}
-
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
-				return err
-			}
-		} else {
-			c.FromCache = true
-		}
-	}
-
-	return nil
-}
-
-func (c *cached) GetRefresh() error {
-	if err := c.PCI.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
-}
-
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
 }
