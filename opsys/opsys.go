@@ -5,72 +5,67 @@ import (
 )
 
 type OpSys interface {
-	Get() error
-}
-
-type Cached interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	GetRefresh() error
+	Update() error
+	ForceUpdate() error
 }
 
 type opSys struct {
-	Kernel         string    `json:"kernel"`
-	KernelVersion  string    `json:"kernel_version"`
-	Product        string    `json:"product"`
-	ProductVersion string    `json:"product_version"`
-	Last           time.Time `json:"last"`
-	TTL            int       `json:"ttl_sec"`
-	Fresh          bool      `json:"fresh"`
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
 }
 
-type cached struct {
-	OpSys       *opSys    `json:"op_sys"`
+type data struct {
+	Kernel         string `json:"kernel"`
+	KernelVersion  string `json:"kernel_version"`
+	Product        string `json:"product"`
+	ProductVersion string `json:"product_version"`
+}
+
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
 }
 
 func New() OpSys {
-	return &opSys{}
-}
-
-func NewCached() Cached {
-	return &cached{
-		OpSys:   &opSys{},
-		Timeout: 5 * 60, // 5 minutes
+	return &opSys{
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
+		},
 	}
 }
 
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
+func (o *opSys) GetData() data {
+	return *o.data
+}
+
+func (o *opSys) GetCache() cache {
+	return *o.cache
+}
+
+func (o *opSys) SetTimeout(timeout int) {
+	o.cache.Timeout = timeout
+}
+
+func (o *opSys) Update() error {
+	if o.cache.LastUpdated.IsZero() {
+		if err := o.ForceUpdate(); err != nil {
 			return err
 		}
 	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
+		expire := o.cache.LastUpdated.Add(time.Duration(o.cache.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
+			if err := o.ForceUpdate(); err != nil {
 				return err
 			}
 		} else {
-			c.FromCache = true
+			o.cache.FromCache = true
 		}
 	}
 
 	return nil
-}
-
-func (c *cached) GetRefresh() error {
-	if err := c.OpSys.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
-}
-
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
 }

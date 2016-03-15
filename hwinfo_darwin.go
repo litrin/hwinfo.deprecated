@@ -7,7 +7,7 @@ import (
 	"github.com/mickep76/hwinfo/cpu"
 	"github.com/mickep76/hwinfo/interfaces"
 	"github.com/mickep76/hwinfo/memory"
-	//	"github.com/mickep76/hwinfo/opsys"
+	"github.com/mickep76/hwinfo/opsys"
 	"github.com/mickep76/hwinfo/system"
 )
 
@@ -17,15 +17,15 @@ type data struct {
 	CPU           interface{} `json:"cpu"`
 	System        interface{} `json:"system"`
 	Memory        interface{} `json:"memory"`
-	//	OpSys         opsys.OpSys           `json:"opsys"`
-	Interfaces interface{} `json:"interfaces"`
+	OpSys         interface{} `json:"opsys"`
+	Interfaces    interface{} `json:"interfaces"`
 }
 
 type cache struct {
-	CPU    interface{} `json:"cpu"`
-	System interface{} `json:"system"`
-	Memory interface{} `json:"memory"`
-	//	OpSys      opsys.Cached      `json:"opsys"`
+	CPU        interface{} `json:"cpu"`
+	System     interface{} `json:"system"`
+	Memory     interface{} `json:"memory"`
+	OpSys      interface{} `json:"opsys"`
 	Interfaces interface{} `json:"interfaces"`
 }
 
@@ -64,6 +64,13 @@ func (h *hwInfo) Update() error {
 	}
 	h.data.Interfaces = interfaces.GetData()
 	h.cache.Interfaces = interfaces.GetCache()
+
+	opSys := opsys.New()
+	if err := opSys.Update(); err != nil {
+		return err
+	}
+	h.data.OpSys = opSys.GetData()
+	h.cache.OpSys = opSys.GetCache()
 
 	return nil
 }
