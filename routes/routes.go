@@ -1,3 +1,5 @@
+// +build linux
+
 package routes
 
 import (
@@ -8,18 +10,21 @@ import (
 )
 
 type Routes interface {
-	Get() error
-}
-
-type Cached interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	GetRefresh() error
+	Update() error
+	ForceUpdate() error
 }
 
-type routes []route
+type routes struct {
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
+}
 
-type route struct {
+type data []dataItem
+
+type dataItem struct {
 	Destination string `json:"destination"`
 	Gateway     string `json:"gateway"`
 	Genmask     string `json:"genmask"`
@@ -30,25 +35,56 @@ type route struct {
 	Interface   string `json:"interface"`
 }
 
-type cached struct {
-	Routes      *routes   `json:"routes"`
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
 }
 
 func New() Routes {
-	return &routes{}
-}
-
-func NewCached() Cached {
-	return &cached{
-		Routes:  &routes{},
-		Timeout: 5 * 60, // 5 minutes
+	return &routes{
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
+		},
 	}
 }
 
-func (routes *routes) Get() error {
+func (r *routes) GetData() data {
+	return *r.data
+}
+
+func (r *routes) GetCache() cache {
+	return *r.cache
+}
+
+func (r *routes) SetTimeout(timeout int) {
+	r.cache.Timeout = timeout
+}
+
+func (r *routes) Update() error {
+	if r.cache.LastUpdated.IsZero() {
+		if err := r.ForceUpdate(); err != nil {
+			return err
+		}
+	} else {
+		expire := r.cache.LastUpdated.Add(time.Duration(r.cache.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := r.ForceUpdate(); err != nil {
+				return err
+			}
+		} else {
+			r.cache.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (routes *routes) ForceUpdate() error {
+	routes.cache.LastUpdated = time.Now()
+	routes.cache.FromCache = false
+
 	o, err := exec.Command("netstat", "-rn").Output()
 	if err != nil {
 		return err
@@ -60,7 +96,7 @@ func (routes *routes) Get() error {
 			continue
 		}
 
-		r := route{}
+		r := dataItem{}
 
 		r.Destination = v[0]
 		r.Gateway = v[1]
@@ -84,41 +120,8 @@ func (routes *routes) Get() error {
 
 		r.Interface = v[7]
 
-		*routes = append(*routes, r)
+		*routes.data = append(*routes.data, r)
 	}
 
 	return nil
-}
-
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
-				return err
-			}
-		} else {
-			c.FromCache = true
-		}
-	}
-
-	return nil
-}
-
-func (c *cached) GetRefresh() error {
-	if err := c.Routes.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
-}
-
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
 }

@@ -1,6 +1,5 @@
-/*
 // +build linux
-*/
+
 package pci
 
 import (
