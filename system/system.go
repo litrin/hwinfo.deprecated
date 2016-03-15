@@ -5,14 +5,14 @@ import (
 )
 
 type System interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	Refresh() error
-	Data() *data
-	Cache() *cache
+	Update() error
+	ForceUpdate() error
 }
 
-type envelope struct {
+type system struct {
 	data  *data  `json:"data"`
 	cache *cache `json:"cache"`
 }
@@ -24,7 +24,7 @@ type cache struct {
 }
 
 func New() System {
-	return &envelope{
+	return &system{
 		data: &data{},
 		cache: &cache{
 			Timeout: 5 * 60, // 5 minutes
@@ -32,33 +32,33 @@ func New() System {
 	}
 }
 
-func (e *envelope) Get() error {
-	if e.cache.LastUpdated.IsZero() {
-		if err := e.Refresh(); err != nil {
+func (s *system) GetData() data {
+	return *s.data
+}
+
+func (s *system) GetCache() cache {
+	return *s.cache
+}
+
+func (s *system) SetTimeout(timeout int) {
+	s.cache.Timeout = timeout
+}
+
+func (s *system) Update() error {
+	if s.cache.LastUpdated.IsZero() {
+		if err := s.ForceUpdate(); err != nil {
 			return err
 		}
 	} else {
-		expire := e.cache.LastUpdated.Add(time.Duration(e.cache.Timeout) * time.Second)
+		expire := s.cache.LastUpdated.Add(time.Duration(s.cache.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := e.Refresh(); err != nil {
+			if err := s.ForceUpdate(); err != nil {
 				return err
 			}
 		} else {
-			e.cache.FromCache = true
+			s.cache.FromCache = true
 		}
 	}
 
 	return nil
-}
-
-func (e *envelope) SetTimeout(timeout int) {
-	e.cache.Timeout = timeout
-}
-
-func (e *envelope) Data() *data {
-	return e.data
-}
-
-func (e *envelope) Cache() *cache {
-	return e.cache
 }

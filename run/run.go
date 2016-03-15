@@ -5,23 +5,24 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/mickep76/hwinfo/system"
+	//"github.com/mickep76/hwinfo/system"
 	//"github.com/mickep76/hwinfo/cpu"
+	"github.com/mickep76/hwinfo"
 )
 
 func main() {
-	e := system.New()
-	if err := e.Get(); err != nil {
+	i := hwinfo.New()
+	if err := i.Update(); err != nil {
 		log.Fatal(err.Error())
 	}
 
-	data, err := json.MarshalIndent(e.Data(), "", "    ")
+	data, err := json.MarshalIndent(i.GetData(), "", "    ")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 	fmt.Println(string(data))
 
-	cache, err := json.MarshalIndent(e.Cache(), "", "    ")
+	cache, err := json.MarshalIndent(i.GetCache(), "", "    ")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
