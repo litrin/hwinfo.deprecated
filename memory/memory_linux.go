@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mickep76/hwinfo/common"
 )
@@ -93,7 +94,10 @@ type memory struct {
 	DirectMap1GKB       int `json:"direct_map_1g_kb"`
 }
 
-func (m *memory) Get() error {
+func (m *memory) ForceUpdate() error {
+	m.cache.LastUpdated = time.Now()
+	m.cache.FromCache = false
+
 	o, err := common.LoadFileFields("/proc/meminfo", ":", []string{
 		"MemTotal",
 		"MemFree",
@@ -145,295 +149,295 @@ func (m *memory) Get() error {
 	}
 
 	// MemTotal
-	m.TotalKB, err = strconv.Atoi(strings.TrimRight(o["MemTotal"], " kB"))
+	m.data.TotalKB, err = strconv.Atoi(strings.TrimRight(o["MemTotal"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "MemTotal", err.Error())
 	}
-	m.TotalGB = m.TotalKB / 1024 / 1024
+	m.data.TotalGB = m.data.TotalKB / 1024 / 1024
 
 	// MemFree
-	m.FreeKB, err = strconv.Atoi(strings.TrimRight(o["MemFree"], " kB"))
+	m.data.FreeKB, err = strconv.Atoi(strings.TrimRight(o["MemFree"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "MemFree", err.Error())
 	}
-	m.FreeGB = m.FreeKB / 1024 / 1024
+	m.data.FreeGB = m.data.FreeKB / 1024 / 1024
 
 	// MemAvailable
-	m.AvailableKB, err = strconv.Atoi(strings.TrimRight(o["MemAvailable"], " kB"))
+	m.data.AvailableKB, err = strconv.Atoi(strings.TrimRight(o["MemAvailable"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "MemAvailable", err.Error())
 	}
-	m.AvailableGB = m.AvailableKB / 1024 / 1024
+	m.data.AvailableGB = m.data.AvailableKB / 1024 / 1024
 
 	// Buffers
-	m.BuffersKB, err = strconv.Atoi(strings.TrimRight(o["Buffers"], " kB"))
+	m.data.BuffersKB, err = strconv.Atoi(strings.TrimRight(o["Buffers"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Buffers", err.Error())
 	}
-	m.BuffersGB = m.BuffersKB / 1024 / 1024
+	m.data.BuffersGB = m.data.BuffersKB / 1024 / 1024
 
 	// Cached
-	m.CachedKB, err = strconv.Atoi(strings.TrimRight(o["Cached"], " kB"))
+	m.data.CachedKB, err = strconv.Atoi(strings.TrimRight(o["Cached"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Cached", err.Error())
 	}
-	m.CachedGB = m.CachedKB / 1024 / 1024
+	m.data.CachedGB = m.data.CachedKB / 1024 / 1024
 
 	// SwapCached
-	m.SwapCachedKB, err = strconv.Atoi(strings.TrimRight(o["SwapCached"], " kB"))
+	m.data.SwapCachedKB, err = strconv.Atoi(strings.TrimRight(o["SwapCached"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "SwapCached", err.Error())
 	}
-	m.SwapCachedGB = m.SwapCachedKB / 1024 / 1024
+	m.data.SwapCachedGB = m.data.SwapCachedKB / 1024 / 1024
 
 	// Active
-	m.ActiveKB, err = strconv.Atoi(strings.TrimRight(o["Active"], " kB"))
+	m.data.ActiveKB, err = strconv.Atoi(strings.TrimRight(o["Active"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Active", err.Error())
 	}
-	m.ActiveGB = m.ActiveKB / 1024 / 1024
+	m.data.ActiveGB = m.data.ActiveKB / 1024 / 1024
 
 	// Inactive
-	m.InactiveKB, err = strconv.Atoi(strings.TrimRight(o["Inactive"], " kB"))
+	m.data.InactiveKB, err = strconv.Atoi(strings.TrimRight(o["Inactive"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Inactive", err.Error())
 	}
-	m.InactiveGB = m.InactiveKB / 1024 / 1024
+	m.data.InactiveGB = m.data.InactiveKB / 1024 / 1024
 
 	// Active(anon)
-	m.ActiveAnonKB, err = strconv.Atoi(strings.TrimRight(o["Active(anon)"], " kB"))
+	m.data.ActiveAnonKB, err = strconv.Atoi(strings.TrimRight(o["Active(anon)"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Active(anon)", err.Error())
 	}
-	m.ActiveAnonGB = m.ActiveAnonKB / 1024 / 1024
+	m.data.ActiveAnonGB = m.data.ActiveAnonKB / 1024 / 1024
 
 	// Inactive(anon)
-	m.InactiveAnonKB, err = strconv.Atoi(strings.TrimRight(o["Inactive(anon)"], " kB"))
+	m.data.InactiveAnonKB, err = strconv.Atoi(strings.TrimRight(o["Inactive(anon)"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Inactive(anon)", err.Error())
 	}
-	m.InactiveAnonGB = m.InactiveAnonKB / 1024 / 1024
+	m.data.InactiveAnonGB = m.data.InactiveAnonKB / 1024 / 1024
 
 	// Active(file)
-	m.ActiveFileKB, err = strconv.Atoi(strings.TrimRight(o["Active(file)"], " kB"))
+	m.data.ActiveFileKB, err = strconv.Atoi(strings.TrimRight(o["Active(file)"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Active(file)", err.Error())
 	}
-	m.ActiveFileGB = m.ActiveFileKB / 1024 / 1024
+	m.data.ActiveFileGB = m.data.ActiveFileKB / 1024 / 1024
 
 	// Inactive(file)
-	m.InactiveFileKB, err = strconv.Atoi(strings.TrimRight(o["Inactive(file)"], " kB"))
+	m.data.InactiveFileKB, err = strconv.Atoi(strings.TrimRight(o["Inactive(file)"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Inactive(file)", err.Error())
 	}
-	m.InactiveFileGB = m.InactiveFileKB / 1024 / 1024
+	m.data.InactiveFileGB = m.data.InactiveFileKB / 1024 / 1024
 
 	// Unevictable
-	m.UnevictableKB, err = strconv.Atoi(strings.TrimRight(o["Unevictable"], " kB"))
+	m.data.UnevictableKB, err = strconv.Atoi(strings.TrimRight(o["Unevictable"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Unevictable", err.Error())
 	}
-	m.UnevictableGB = m.UnevictableKB / 1024 / 1024
+	m.data.UnevictableGB = m.data.UnevictableKB / 1024 / 1024
 
 	// Mlocked
-	m.MLockedKB, err = strconv.Atoi(strings.TrimRight(o["Mlocked"], " kB"))
+	m.data.MLockedKB, err = strconv.Atoi(strings.TrimRight(o["Mlocked"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Mlocked", err.Error())
 	}
-	m.MLockedGB = m.MLockedKB / 1024 / 1024
+	m.data.MLockedGB = m.data.MLockedKB / 1024 / 1024
 
 	// SwapTotal
-	m.SwapTotalKB, err = strconv.Atoi(strings.TrimRight(o["SwapTotal"], " kB"))
+	m.data.SwapTotalKB, err = strconv.Atoi(strings.TrimRight(o["SwapTotal"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "SwapTotal", err.Error())
 	}
-	m.SwapTotalGB = m.SwapTotalKB / 1024 / 1024
+	m.data.SwapTotalGB = m.data.SwapTotalKB / 1024 / 1024
 
 	// SwapFree
-	m.SwapFreeKB, err = strconv.Atoi(strings.TrimRight(o["SwapFree"], " kB"))
+	m.data.SwapFreeKB, err = strconv.Atoi(strings.TrimRight(o["SwapFree"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "SwapFree", err.Error())
 	}
-	m.SwapFreeGB = m.SwapFreeKB / 1024 / 1024
+	m.data.SwapFreeGB = m.data.SwapFreeKB / 1024 / 1024
 
 	// Dirty
-	m.DirtyKB, err = strconv.Atoi(strings.TrimRight(o["Dirty"], " kB"))
+	m.data.DirtyKB, err = strconv.Atoi(strings.TrimRight(o["Dirty"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Dirty", err.Error())
 	}
-	m.DirtyGB = m.DirtyKB / 1024 / 1024
+	m.data.DirtyGB = m.data.DirtyKB / 1024 / 1024
 
 	// Writeback
-	m.WritebackKB, err = strconv.Atoi(strings.TrimRight(o["Writeback"], " kB"))
+	m.data.WritebackKB, err = strconv.Atoi(strings.TrimRight(o["Writeback"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Writeback", err.Error())
 	}
-	m.WritebackGB = m.WritebackKB / 1024 / 1024
+	m.data.WritebackGB = m.data.WritebackKB / 1024 / 1024
 
 	// AnonPages
-	m.AnonPagesKB, err = strconv.Atoi(strings.TrimRight(o["AnonPages"], " kB"))
+	m.data.AnonPagesKB, err = strconv.Atoi(strings.TrimRight(o["AnonPages"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "AnonPages", err.Error())
 	}
-	m.AnonPagesGB = m.AnonPagesKB / 1024 / 1024
+	m.data.AnonPagesGB = m.data.AnonPagesKB / 1024 / 1024
 
 	// Mapped
-	m.MappedKB, err = strconv.Atoi(strings.TrimRight(o["Mapped"], " kB"))
+	m.data.MappedKB, err = strconv.Atoi(strings.TrimRight(o["Mapped"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Mapped", err.Error())
 	}
-	m.MappedGB = m.MappedKB / 1024 / 1024
+	m.data.MappedGB = m.data.MappedKB / 1024 / 1024
 
 	// Shmem
-	m.ShmemKB, err = strconv.Atoi(strings.TrimRight(o["Shmem"], " kB"))
+	m.data.ShmemKB, err = strconv.Atoi(strings.TrimRight(o["Shmem"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Shmem", err.Error())
 	}
-	m.ShmemGB = m.ShmemKB / 1024 / 1024
+	m.data.ShmemGB = m.data.ShmemKB / 1024 / 1024
 
 	// Slab
-	m.SlabKB, err = strconv.Atoi(strings.TrimRight(o["Slab"], " kB"))
+	m.data.SlabKB, err = strconv.Atoi(strings.TrimRight(o["Slab"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Slab", err.Error())
 	}
-	m.SlabGB = m.SlabKB / 1024 / 1024
+	m.data.SlabGB = m.data.SlabKB / 1024 / 1024
 
 	// SReclaimable
-	m.SReclaimableKB, err = strconv.Atoi(strings.TrimRight(o["SReclaimable"], " kB"))
+	m.data.SReclaimableKB, err = strconv.Atoi(strings.TrimRight(o["SReclaimable"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "SReclaimable", err.Error())
 	}
-	m.SReclaimableGB = m.SReclaimableKB / 1024 / 1024
+	m.data.SReclaimableGB = m.data.SReclaimableKB / 1024 / 1024
 
 	// SUnreclaim
-	m.SUnreclaimKB, err = strconv.Atoi(strings.TrimRight(o["SUnreclaim"], " kB"))
+	m.data.SUnreclaimKB, err = strconv.Atoi(strings.TrimRight(o["SUnreclaim"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "SUnreclaim", err.Error())
 	}
-	m.SUnreclaimGB = m.SUnreclaimKB / 1024 / 1024
+	m.data.SUnreclaimGB = m.data.SUnreclaimKB / 1024 / 1024
 
 	// KernelStack
-	m.KernelStackKB, err = strconv.Atoi(strings.TrimRight(o["KernelStack"], " kB"))
+	m.data.KernelStackKB, err = strconv.Atoi(strings.TrimRight(o["KernelStack"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "KernelStack", err.Error())
 	}
-	m.KernelStackGB = m.KernelStackKB / 1024 / 1024
+	m.data.KernelStackGB = m.data.KernelStackKB / 1024 / 1024
 
 	// PageTables
-	m.PageTablesKB, err = strconv.Atoi(strings.TrimRight(o["PageTables"], " kB"))
+	m.data.PageTablesKB, err = strconv.Atoi(strings.TrimRight(o["PageTables"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "PageTables", err.Error())
 	}
-	m.PageTablesGB = m.PageTablesKB / 1024 / 1024
+	m.data.PageTablesGB = m.data.PageTablesKB / 1024 / 1024
 
 	// NFS_Unstable
-	m.NFSUnstableKB, err = strconv.Atoi(strings.TrimRight(o["NFS_Unstable"], " kB"))
+	m.data.NFSUnstableKB, err = strconv.Atoi(strings.TrimRight(o["NFS_Unstable"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "NFS_Unstable", err.Error())
 	}
-	m.NFSUnstableGB = m.NFSUnstableKB / 1024 / 1024
+	m.data.NFSUnstableGB = m.data.NFSUnstableKB / 1024 / 1024
 
 	// Bounce
-	m.BounceKB, err = strconv.Atoi(strings.TrimRight(o["Bounce"], " kB"))
+	m.data.BounceKB, err = strconv.Atoi(strings.TrimRight(o["Bounce"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Bounce", err.Error())
 	}
-	m.BounceGB = m.BounceKB / 1024 / 1024
+	m.data.BounceGB = m.data.BounceKB / 1024 / 1024
 
 	// WritebackTmp
-	m.WritebackTmpKB, err = strconv.Atoi(strings.TrimRight(o["WritebackTmp"], " kB"))
+	m.data.WritebackTmpKB, err = strconv.Atoi(strings.TrimRight(o["WritebackTmp"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "WritebackTmp", err.Error())
 	}
-	m.WritebackTmpGB = m.WritebackTmpKB / 1024 / 1024
+	m.data.WritebackTmpGB = m.data.WritebackTmpKB / 1024 / 1024
 
 	// CommitLimit
-	m.CommitLimitKB, err = strconv.Atoi(strings.TrimRight(o["CommitLimit"], " kB"))
+	m.data.CommitLimitKB, err = strconv.Atoi(strings.TrimRight(o["CommitLimit"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "CommitLimit", err.Error())
 	}
-	m.CommitLimitGB = m.CommitLimitKB / 1024 / 1024
+	m.data.CommitLimitGB = m.data.CommitLimitKB / 1024 / 1024
 
 	// Committed_AS
-	m.CommittedASKB, err = strconv.Atoi(strings.TrimRight(o["Committed_AS"], " kB"))
+	m.data.CommittedASKB, err = strconv.Atoi(strings.TrimRight(o["Committed_AS"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Committed_AS", err.Error())
 	}
-	m.CommittedASGB = m.CommittedASKB / 1024 / 1024
+	m.data.CommittedASGB = m.data.CommittedASKB / 1024 / 1024
 
 	// VmallocTotal
-	m.VmallocTotalKB, err = strconv.Atoi(strings.TrimRight(o["VmallocTotal"], " kB"))
+	m.data.VmallocTotalKB, err = strconv.Atoi(strings.TrimRight(o["VmallocTotal"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "VmallocTotal", err.Error())
 	}
-	m.VmallocTotalGB = m.VmallocTotalKB / 1024 / 1024
+	m.data.VmallocTotalGB = m.data.VmallocTotalKB / 1024 / 1024
 
 	// VmallocUsed
-	m.VmallocUsedKB, err = strconv.Atoi(strings.TrimRight(o["VmallocUsed"], " kB"))
+	m.data.VmallocUsedKB, err = strconv.Atoi(strings.TrimRight(o["VmallocUsed"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "VmallocUsed", err.Error())
 	}
-	m.VmallocUsedGB = m.VmallocUsedKB / 1024 / 1024
+	m.data.VmallocUsedGB = m.data.VmallocUsedKB / 1024 / 1024
 
 	// VmallocChunk
-	m.VmallocChunkKB, err = strconv.Atoi(strings.TrimRight(o["VmallocChunk"], " kB"))
+	m.data.VmallocChunkKB, err = strconv.Atoi(strings.TrimRight(o["VmallocChunk"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "VmallocChunk", err.Error())
 	}
-	m.VmallocChunkGB = m.VmallocChunkKB / 1024 / 1024
+	m.data.VmallocChunkGB = m.data.VmallocChunkKB / 1024 / 1024
 
 	// HardwareCorrupted
-	m.HardwareCorruptedKB, err = strconv.Atoi(strings.TrimRight(o["HardwareCorrupted"], " kB"))
+	m.data.HardwareCorruptedKB, err = strconv.Atoi(strings.TrimRight(o["HardwareCorrupted"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "HardwareCorrupted", err.Error())
 	}
-	m.HardwareCorruptedGB = m.HardwareCorruptedKB / 1024 / 1024
+	m.data.HardwareCorruptedGB = m.data.HardwareCorruptedKB / 1024 / 1024
 
 	// AnonHugePages
-	m.AnonHugePagesKB, err = strconv.Atoi(strings.TrimRight(o["AnonHugePages"], " kB"))
+	m.data.AnonHugePagesKB, err = strconv.Atoi(strings.TrimRight(o["AnonHugePages"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "AnonHugePages", err.Error())
 	}
-	m.AnonHugePagesGB = m.AnonHugePagesKB / 1024 / 1024
+	m.data.AnonHugePagesGB = m.data.AnonHugePagesKB / 1024 / 1024
 
 	// HugePages_Total
-	m.HugePagesTot, err = strconv.Atoi(o["HugePages_Total"])
+	m.data.HugePagesTot, err = strconv.Atoi(o["HugePages_Total"])
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "HugePages_Total", err.Error())
 	}
 
 	// HugePages_Free
-	m.HugePagesFree, err = strconv.Atoi(o["HugePages_Free"])
+	m.data.HugePagesFree, err = strconv.Atoi(o["HugePages_Free"])
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "HugePages_Free", err.Error())
 	}
 
 	// HugePages_Rsvd
-	m.HugePagesRsvd, err = strconv.Atoi(o["HugePages_Rsvd"])
+	m.data.HugePagesRsvd, err = strconv.Atoi(o["HugePages_Rsvd"])
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "HugePages_Rsvd", err.Error())
 	}
 
 	// Hugepagesize
-	m.HugePageSizeKB, err = strconv.Atoi(strings.TrimRight(o["Hugepagesize"], " kB"))
+	m.data.HugePageSizeKB, err = strconv.Atoi(strings.TrimRight(o["Hugepagesize"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "Hugepagesize", err.Error())
 	}
 
 	// DirectMap4k
-	m.DirectMap4kKB, err = strconv.Atoi(strings.TrimRight(o["DirectMap4k"], " kB"))
+	m.data.DirectMap4kKB, err = strconv.Atoi(strings.TrimRight(o["DirectMap4k"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "DirectMap4k", err.Error())
 	}
 
 	// DirectMap2M
-	m.DirectMap2MKB, err = strconv.Atoi(strings.TrimRight(o["DirectMap2M"], " kB"))
+	m.data.DirectMap2MKB, err = strconv.Atoi(strings.TrimRight(o["DirectMap2M"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "DirectMap2M", err.Error())
 	}
 
 	// DirectMap1G
-	m.DirectMap1GKB, err = strconv.Atoi(strings.TrimRight(o["DirectMap1G"], " kB"))
+	m.data.DirectMap1GKB, err = strconv.Atoi(strings.TrimRight(o["DirectMap1G"], " kB"))
 	if err != nil {
 		return fmt.Errorf("failed parsing field: %s error: %s", "DirectMap1G", err.Error())
 	}

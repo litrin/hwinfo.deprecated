@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	//"github.com/mickep76/hwinfo/system"
-	//"github.com/mickep76/hwinfo/cpu"
 	"github.com/mickep76/hwinfo"
 )
 
