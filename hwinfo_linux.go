@@ -14,7 +14,7 @@ import (
 	"github.com/mickep76/hwinfo/opsys"
 	//	"github.com/mickep76/hwinfo/pci"
 	//	"github.com/mickep76/hwinfo/routes"
-	//	"github.com/mickep76/hwinfo/sysctl"
+	"github.com/mickep76/hwinfo/sysctl"
 	"github.com/mickep76/hwinfo/system"
 )
 
@@ -31,7 +31,7 @@ type data struct {
 	OpSys  interface{} `json:"opsys"`
 	//	PCI           interface{}               `json:"pci"`
 	//	Routes        interface{}         `json:"routes"`
-	//	Sysctl        interface{}         `json:"sysctl"`
+	Sysctl interface{} `json:"sysctl"`
 	System interface{} `json:"system"`
 }
 
@@ -46,7 +46,7 @@ type cache struct {
 	OpSys  interface{} `json:"opsys"`
 	//  PCI           interface{}            `json:"pci"`
 	//  Routes        interface{}        `json:"routes"`
-	//  Sysctl        interface{}         `json:"sysctl"`
+	Sysctl interface{} `json:"sysctl"`
 	System interface{} `json:"system"`
 }
 
@@ -113,6 +113,13 @@ func (h *hwInfo) Update() error {
 	}
 	h.data.Mounts = mounts.GetData()
 	h.cache.Mounts = mounts.GetCache()
+
+	sysctl := sysctl.New()
+	if err := sysctl.Update(); err != nil {
+		return err
+	}
+	h.data.Sysctl = sysctl.GetData()
+	h.cache.Sysctl = sysctl.GetCache()
 
 	return nil
 }

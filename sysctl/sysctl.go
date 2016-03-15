@@ -1,6 +1,4 @@
-/*
 // +build linux
-*/
 
 package sysctl
 
@@ -11,41 +9,75 @@ import (
 )
 
 type Sysctl interface {
-	Get() error
-}
-
-type Cached interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	GetRefresh() error
+	Update() error
+	ForceUpdate() error
 }
-
-type sysctls []sysctl
 
 type sysctl struct {
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
+}
+
+type data []dataItem
+
+type dataItem struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
-type cached struct {
-	Sysctl      *sysctls  `json:"sysctl"`
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
 }
 
 func New() Sysctl {
-	return &sysctls{}
-}
-
-func NewCached() Cached {
-	return &cached{
-		Sysctl:  &sysctls{},
-		Timeout: 5 * 60, // 5 minutes
+	return &sysctl{
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
+		},
 	}
 }
 
-func (sysctls *sysctls) Get() error {
+func (s *sysctl) GetData() data {
+	return *s.data
+}
+
+func (s *sysctl) GetCache() cache {
+	return *s.cache
+}
+
+func (s *sysctl) SetTimeout(timeout int) {
+	s.cache.Timeout = timeout
+}
+
+func (s *sysctl) Update() error {
+	if s.cache.LastUpdated.IsZero() {
+		if err := s.ForceUpdate(); err != nil {
+			return err
+		}
+	} else {
+		expire := s.cache.LastUpdated.Add(time.Duration(s.cache.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := s.ForceUpdate(); err != nil {
+				return err
+			}
+		} else {
+			s.cache.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (sysctl *sysctl) ForceUpdate() error {
+	sysctl.cache.LastUpdated = time.Now()
+	sysctl.cache.FromCache = false
+
 	o, err := exec.Command("sysctl", "-a").Output()
 	if err != nil {
 		return err
@@ -57,46 +89,13 @@ func (sysctls *sysctls) Get() error {
 			continue
 		}
 
-		s := sysctl{}
+		s := dataItem{}
 
 		s.Key = vals[0]
 		s.Value = vals[2]
 
-		*sysctls = append(*sysctls, s)
+		*sysctl.data = append(*sysctl.data, s)
 	}
 
 	return nil
-}
-
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
-				return err
-			}
-		} else {
-			c.FromCache = true
-		}
-	}
-
-	return nil
-}
-
-func (c *cached) GetRefresh() error {
-	if err := c.Sysctl.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
-}
-
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
 }
