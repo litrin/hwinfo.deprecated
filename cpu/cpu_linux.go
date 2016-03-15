@@ -11,9 +11,9 @@ import (
 	"time"
 )
 
-func (e *envelope) Refresh() error {
-	e.cache.LastUpdated = time.Now()
-	e.cache.FromCache = false
+func (c *cpu) ForceUpdate() error {
+	c.cache.LastUpdated = time.Now()
+	c.cache.FromCache = false
 
 	if _, err := os.Stat("/proc/cpuinfo"); os.IsNotExist(err) {
 		return errors.New("file doesn't exist: /proc/cpuinfo")
@@ -26,8 +26,8 @@ func (e *envelope) Refresh() error {
 
 	cpuID := -1
 	cpuIDs := make(map[int]bool)
-	e.data.CoresPerSocket = 0
-	e.data.Logical = 0
+	c.data.CoresPerSocket = 0
+	c.data.Logical = 0
 	for _, line := range strings.Split(string(o), "\n") {
 		vals := strings.Split(line, ":")
 		if len(vals) < 1 {
@@ -35,17 +35,17 @@ func (e *envelope) Refresh() error {
 		}
 
 		v := strings.Trim(strings.Join(vals[1:], " "), " ")
-		if e.data.Model == "" && strings.HasPrefix(line, "model name") {
-			e.data.Model = v
-		} else if e.data.Flags == "" && strings.HasPrefix(line, "flags") {
-			e.data.Flags = v
-		} else if e.data.CoresPerSocket == 0 && strings.HasPrefix(line, "cpu cores") {
-			e.data.CoresPerSocket, err = strconv.Atoi(v)
+		if c.data.Model == "" && strings.HasPrefix(line, "model name") {
+			c.data.Model = v
+		} else if c.data.Flags == "" && strings.HasPrefix(line, "flags") {
+			c.data.Flags = v
+		} else if c.data.CoresPerSocket == 0 && strings.HasPrefix(line, "cpu cores") {
+			c.data.CoresPerSocket, err = strconv.Atoi(v)
 			if err != nil {
 				return err
 			}
 		} else if strings.HasPrefix(line, "processor") {
-			e.data.Logical++
+			c.data.Logical++
 		} else if strings.HasPrefix(line, "physical id") {
 			cpuID, err = strconv.Atoi(v)
 			if err != nil {
@@ -54,9 +54,9 @@ func (e *envelope) Refresh() error {
 			cpuIDs[cpuID] = true
 		}
 	}
-	e.data.Sockets = int(len(cpuIDs))
-	e.data.Physical = e.data.Sockets * e.data.CoresPerSocket
-	e.data.ThreadsPerCore = e.data.Logical / e.data.Sockets / e.data.CoresPerSocket
+	c.data.Sockets = int(len(cpuIDs))
+	c.data.Physical = c.data.Sockets * c.data.CoresPerSocket
+	c.data.ThreadsPerCore = c.data.Logical / c.data.Sockets / c.data.CoresPerSocket
 
 	return nil
 }
