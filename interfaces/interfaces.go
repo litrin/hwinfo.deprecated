@@ -11,18 +11,21 @@ import (
 )
 
 type Interfaces interface {
-	Get() error
-}
-
-type Cached interface {
+	GetData() data
+	GetCache() cache
 	SetTimeout(int)
-	Get() error
-	GetRefresh() error
+	Update() error
+	ForceUpdate() error
 }
 
-type intfs []intf
+type interfaces struct {
+	data  *data  `json:"data"`
+	cache *cache `json:"cache"`
+}
 
-type intf struct {
+type data []dataItem
+
+type dataItem struct {
 	Name            string   `json:"name"`
 	MTU             int      `json:"mtu"`
 	IPAddr          []string `json:"ipaddr"`
@@ -41,25 +44,56 @@ type intf struct {
 	SwVLAN          string   `json:"sw_vlan"`
 }
 
-type cached struct {
-	Interfaces  *intfs    `json:"interfaces"`
+type cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
 }
 
 func New() Interfaces {
-	return &intfs{}
-}
-
-func NewCached() Cached {
-	return &cached{
-		Interfaces: &intfs{},
-		Timeout:    5 * 60, // 5 minutes
+	return &interfaces{
+		data: &data{},
+		cache: &cache{
+			Timeout: 5 * 60, // 5 minutes
+		},
 	}
 }
 
-func (sIntfs *intfs) Get() error {
+func (i *interfaces) GetData() data {
+	return *i.data
+}
+
+func (i *interfaces) GetCache() cache {
+	return *i.cache
+}
+
+func (i *interfaces) SetTimeout(timeout int) {
+	i.cache.Timeout = timeout
+}
+
+func (i *interfaces) Update() error {
+	if i.cache.LastUpdated.IsZero() {
+		if err := i.ForceUpdate(); err != nil {
+			return err
+		}
+	} else {
+		expire := i.cache.LastUpdated.Add(time.Duration(i.cache.Timeout) * time.Second)
+		if expire.Before(time.Now()) {
+			if err := i.ForceUpdate(); err != nil {
+				return err
+			}
+		} else {
+			i.cache.FromCache = true
+		}
+	}
+
+	return nil
+}
+
+func (i *interfaces) ForceUpdate() error {
+	i.cache.LastUpdated = time.Now()
+	i.cache.FromCache = false
+
 	rIntfs, err := net.Interfaces()
 	if err != nil {
 		return err
@@ -76,7 +110,7 @@ func (sIntfs *intfs) Get() error {
 			return err
 		}
 
-		sIntf := intf{
+		sIntf := dataItem{
 			Name:   rIntf.Name,
 			HWAddr: rIntf.HardwareAddr.String(),
 			MTU:    rIntf.MTU,
@@ -139,55 +173,8 @@ func (sIntfs *intfs) Get() error {
 			sIntf.SwVLAN = o2["VLAN"]
 		}
 
-		*sIntfs = append(*sIntfs, sIntf)
-	}
-
-	/*
-		switch runtime.GOOS {
-		case "linux":
-			_, err := exec.LookPath("onload")
-			if err == nil {
-				o, _ := common.ExecCmdFields("onload", []string{"--version"}, ":", []string{"Kernel module"})
-				if err != nil {
-					return err
-				}
-				n.OnloadVersion = o["Kernel module"]
-			}
-		}
-	*/
-
-	return nil
-}
-
-func (c *cached) Get() error {
-	if c.LastUpdated.IsZero() {
-		if err := c.GetRefresh(); err != nil {
-			return err
-		}
-	} else {
-		expire := c.LastUpdated.Add(time.Duration(c.Timeout) * time.Second)
-		if expire.Before(time.Now()) {
-			if err := c.GetRefresh(); err != nil {
-				return err
-			}
-		} else {
-			c.FromCache = true
-		}
+		*i.data = append(*i.data, sIntf)
 	}
 
 	return nil
-}
-
-func (c *cached) GetRefresh() error {
-	if err := c.Interfaces.Get(); err != nil {
-		return err
-	}
-	c.LastUpdated = time.Now()
-	c.FromCache = false
-
-	return nil
-}
-
-func (c *cached) SetTimeout(timeout int) {
-	c.Timeout = timeout
 }
