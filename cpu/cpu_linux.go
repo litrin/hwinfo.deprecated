@@ -29,17 +29,17 @@ func (e *envelope) Refresh() error {
 	e.data.CoresPerSocket = 0
 	e.data.Logical = 0
 	for _, line := range strings.Split(string(o), "\n") {
-		v := strings.Split(line, ":")
-		if len(v) < 1 {
+		vals := strings.Split(line, ":")
+		if len(vals) < 1 {
 			continue
 		}
 
-		v := strings.Trim(strings.Join(v[1:], " "), " ")
+		v := strings.Trim(strings.Join(vals[1:], " "), " ")
 		if e.data.Model == "" && strings.HasPrefix(line, "model name") {
 			e.data.Model = v
-		} else if e.data.flags == "" && strings.HasPrefix(line, "flags") {
+		} else if e.data.Flags == "" && strings.HasPrefix(line, "flags") {
 			e.data.Flags = v
-		} else if e.data.coresPerSocket == 0 && strings.HasPrefix(line, "cpu cores") {
+		} else if e.data.CoresPerSocket == 0 && strings.HasPrefix(line, "cpu cores") {
 			e.data.CoresPerSocket, err = strconv.Atoi(v)
 			if err != nil {
 				return err
@@ -55,7 +55,7 @@ func (e *envelope) Refresh() error {
 		}
 	}
 	e.data.Sockets = int(len(cpuIDs))
-	e.data.Physical = c.Sockets * c.CoresPerSocket
+	e.data.Physical = e.data.Sockets * e.data.CoresPerSocket
 	e.data.ThreadsPerCore = e.data.Logical / e.data.Sockets / e.data.CoresPerSocket
 
 	return nil

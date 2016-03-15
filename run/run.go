@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log"
 
-	//	"github.com/mickep76/hwinfo/system"
-	"github.com/mickep76/hwinfo/cpu"
+	"github.com/mickep76/hwinfo/system"
+	//"github.com/mickep76/hwinfo/cpu"
 )
 
 func main() {
-	e := cpu.New()
+	e := system.New()
 	if err := e.Get(); err != nil {
 		log.Fatal(err.Error())
 	}
