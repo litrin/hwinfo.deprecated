@@ -42,7 +42,7 @@ func New() Mounts {
 
 func NewCached() Cached {
 	return &cached{
-		Mounts:  New(),
+		Mounts:  &mounts{},
 		Timeout: 5 * 60, // 5 minutes
 	}
 }

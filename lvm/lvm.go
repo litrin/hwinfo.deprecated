@@ -77,7 +77,11 @@ func New() LVM {
 
 func NewCached() Cached {
 	return &cached{
-		LVM:     New(),
+		LVM: &lvm{
+			PhysVols: &physVols{},
+			LogVols:  &logVols{},
+			VolGrps:  &volGrps{},
+		},
 		Timeout: 5 * 60, // 5 minutes
 	}
 }

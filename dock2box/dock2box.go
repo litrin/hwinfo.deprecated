@@ -60,8 +60,10 @@ func New() Dock2Box {
 
 func NewCached() Cached {
 	return &cached{
-		Dock2Box: New(),
-		Timeout:  12 * 60 * 60, // 12 hours
+		Dock2Box: &dock2box{
+			Layers: &layers{},
+		},
+		Timeout: 12 * 60 * 60, // 12 hours
 	}
 }
 

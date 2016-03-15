@@ -42,7 +42,7 @@ func New() Disks {
 
 func NewCached() Cached {
 	return &cached{
-		Disks:   New(),
+		Disks:   &disks{},
 		Timeout: 5 * 60, // 5 minutes
 	}
 }

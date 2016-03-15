@@ -26,10 +26,17 @@ type hwInfo struct {
 	Hostname      string                `json:"hostname"`
 	ShortHostname string                `json:"short_hostname"`
 	CPU           cpu.CPU               `json:"cpu"`
-	Memory        memory.Memory         `json:"memory"`
-	OpSys         opsys.OpSys           `json:"opsys"`
-	System        system.System         `json:"system"`
+	Disks         disks.Disks           `json:"disks"`
+	Dock2Box      dock2box.Dock2Box     `json:"dock2box"`
 	Interfaces    interfaces.Interfaces `json:"interfaces"`
+	LVM           lvm.LVM               `json:"lvm"`
+	Memory        memory.Memory         `json:"memory"`
+	Mounts        mounts.Mounts         `json:"mounts"`
+	OpSys         opsys.OpSys           `json:"opsys"`
+	PCI           pci.PCI               `json:"pci"`
+	Routes        routes.Routes         `json:"routes"`
+	Sysctl        sysctl.Sysctl         `json:"sysctl"`
+	System        system.System         `json:"system"`
 }
 
 func New() HWInfo {
