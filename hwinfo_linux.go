@@ -25,14 +25,14 @@ type data struct {
 	Disks         interface{} `json:"disks"`
 	Dock2Box      interface{} `json:"dock2box"`
 	Interfaces    interface{} `json:"interfaces"`
-	LVM           interface{]               `json:"lvm"`
-	Memory interface{} `json:"memory"`
-	Mounts interface{} `json:"mounts"`
-	OpSys  interface{} `json:"opsys"`
-	PCI    interface{} `json:"pci"`
-	Routes interface{} `json:"routes"`
-	Sysctl interface{} `json:"sysctl"`
-	System interface{} `json:"system"`
+	LVM           interface{} `json:"lvm"`
+	Memory        interface{} `json:"memory"`
+	Mounts        interface{} `json:"mounts"`
+	OpSys         interface{} `json:"opsys"`
+	PCI           interface{} `json:"pci"`
+	Routes        interface{} `json:"routes"`
+	Sysctl        interface{} `json:"sysctl"`
+	System        interface{} `json:"system"`
 }
 
 type cache struct {
@@ -40,14 +40,14 @@ type cache struct {
 	Disks      interface{} `json:"disks"`
 	Dock2Box   interface{} `json:"dock2box"`
 	Interfaces interface{} `json:"interfaces"`
-	LVM           interface{}              `json:"lvm"`
-	Memory interface{} `json:"memory"`
-	Mounts interface{} `json:"mounts"`
-	OpSys  interface{} `json:"opsys"`
-	PCI    interface{} `json:"pci"`
-	Routes interface{} `json:"routes"`
-	Sysctl interface{} `json:"sysctl"`
-	System interface{} `json:"system"`
+	LVM        interface{} `json:"lvm"`
+	Memory     interface{} `json:"memory"`
+	Mounts     interface{} `json:"mounts"`
+	OpSys      interface{} `json:"opsys"`
+	PCI        interface{} `json:"pci"`
+	Routes     interface{} `json:"routes"`
+	Sysctl     interface{} `json:"sysctl"`
+	System     interface{} `json:"system"`
 }
 
 func (h *hwInfo) Update() error {
@@ -135,12 +135,12 @@ func (h *hwInfo) Update() error {
 	h.data.Routes = routes.GetData()
 	h.cache.Routes = routes.GetCache()
 
-    lvm := lvm.New()
-    if err := lvm.Update(); err != nil {
-        return err
-    }
-    h.data.LVM = lvm.GetData()
-    h.cache.LVM = lvm.GetCache()
+	lvm := lvm.New()
+	if err := lvm.Update(); err != nil {
+		return err
+	}
+	h.data.LVM = lvm.GetData()
+	h.cache.LVM = lvm.GetCache()
 
 	return nil
 }

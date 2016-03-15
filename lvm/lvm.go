@@ -71,7 +71,11 @@ type cache struct {
 
 func New() LVM {
 	return &lvm{
-		data: &data{},
+		data: &data{
+			PhysVols: physVols{},
+			LogVols:  logVols{},
+			VolGrps:  volGrps{},
+		},
 		cache: &cache{
 			Timeout: 5 * 60, // 5 minutes
 		},
@@ -110,22 +114,22 @@ func (l *lvm) Update() error {
 }
 
 func (l *lvm) ForceUpdate() error {
-	if err := l.data.PhysVols.Get(); err != nil {
+	if err := l.getPhysVols(); err != nil {
 		return err
 	}
 
-	if err := l.data.LogVols.Get(); err != nil {
+	if err := l.getLogVols(); err != nil {
 		return err
 	}
 
-	if err := l.data.VolGrps.Get(); err != nil {
+	if err := l.getVolGrps(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (pvs physVols) Get() error {
+func (l *lvm) getPhysVols() error {
 	_, err := exec.LookPath("pvs")
 	if err != nil {
 		return errors.New("command doesn't exist: pvs")
@@ -163,13 +167,13 @@ func (pvs physVols) Get() error {
 		pv.FreeKB = pv.FreeKB / 1024
 		pv.FreeGB = pv.FreeKB / 1024 / 1024
 
-		pvs = append(pvs, pv)
+		l.data.PhysVols = append(l.data.PhysVols, pv)
 	}
 
 	return nil
 }
 
-func (lvs logVols) Get() error {
+func (l *lvm) getLogVols() error {
 	_, err := exec.LookPath("lvs")
 	if err != nil {
 		return errors.New("command doesn't exist: lvs")
@@ -199,13 +203,13 @@ func (lvs logVols) Get() error {
 		lv.SizeKB = lv.SizeKB / 1024
 		lv.SizeGB = lv.SizeKB / 1024 / 1024
 
-		lvs = append(lvs, lv)
+		l.data.LogVols = append(l.data.LogVols, lv)
 	}
 
 	return nil
 }
 
-func (vgs volGrps) Get() error {
+func (l *lvm) getVolGrps() error {
 	_, err := exec.LookPath("vgs")
 	if err != nil {
 		return errors.New("command doesn't exist: vgs")
@@ -241,7 +245,7 @@ func (vgs volGrps) Get() error {
 		vg.FreeKB = vg.FreeKB / 1024
 		vg.FreeGB = vg.FreeGB / 1024 / 1024
 
-		vgs = append(vgs, vg)
+		l.data.VolGrps = append(l.data.VolGrps, vg)
 	}
 
 	return nil
