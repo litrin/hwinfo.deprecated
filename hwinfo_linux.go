@@ -34,7 +34,6 @@ type HWInfo interface {
 	GetRoutes() routes.Routes
 	GetSysctl() sysctl.Sysctl
 	GetSystem() system.System
-	GetInterfaces() interfaces.Interfaces
 }
 
 type hwInfo struct {
@@ -97,8 +96,8 @@ func New() HWInfo {
 		Mounts:     mounts.New(),
 		OpSys:      opsys.New(),
 		PCI:        pci.New(),
-		Routes:     routes.Routes(),
-		Sysctl:     sysctl.Sysctl(),
+		Routes:     routes.New(),
+		Sysctl:     sysctl.New(),
 		System:     system.New(),
 		data:       &data{},
 		cache:      &cache{},
@@ -110,7 +109,7 @@ func (h *hwInfo) GetCPU() cpu.CPU {
 }
 
 func (h *hwInfo) GetDisks() disks.Disks {
-	return h.CPU
+	return h.Disks
 }
 
 func (h *hwInfo) GetDock2Box() dock2box.Dock2Box {
@@ -137,7 +136,7 @@ func (h *hwInfo) GetOpSys() opsys.OpSys {
 	return h.OpSys
 }
 
-func (h *hwInfo) GetPCI() opsys.PCI {
+func (h *hwInfo) GetPCI() pci.PCI {
 	return h.PCI
 }
 
