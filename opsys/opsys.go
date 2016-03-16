@@ -5,26 +5,26 @@ import (
 )
 
 type OpSys interface {
-	GetData() data
-	GetCache() cache
+	GetData() Data
+	GetCache() Cache
 	SetTimeout(int)
 	Update() error
 	ForceUpdate() error
 }
 
 type opSys struct {
-	data  *data  `json:"data"`
-	cache *cache `json:"cache"`
+	data  *Data  `json:"data"`
+	cache *Cache `json:"cache"`
 }
 
-type data struct {
+type Data struct {
 	Kernel         string `json:"kernel"`
 	KernelVersion  string `json:"kernel_version"`
 	Product        string `json:"product"`
 	ProductVersion string `json:"product_version"`
 }
 
-type cache struct {
+type Cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
@@ -32,18 +32,18 @@ type cache struct {
 
 func New() OpSys {
 	return &opSys{
-		data: &data{},
-		cache: &cache{
+		data: &Data{},
+		cache: &Cache{
 			Timeout: 5 * 60, // 5 minutes
 		},
 	}
 }
 
-func (o *opSys) GetData() data {
+func (o *opSys) GetData() Data {
 	return *o.data
 }
 
-func (o *opSys) GetCache() cache {
+func (o *opSys) GetCache() Cache {
 	return *o.cache
 }
 

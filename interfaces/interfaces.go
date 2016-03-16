@@ -11,21 +11,21 @@ import (
 )
 
 type Interfaces interface {
-	GetData() data
-	GetCache() cache
+	GetData() Data
+	GetCache() Cache
 	SetTimeout(int)
 	Update() error
 	ForceUpdate() error
 }
 
 type interfaces struct {
-	data  *data  `json:"data"`
-	cache *cache `json:"cache"`
+	data  *Data  `json:"data"`
+	cache *Cache `json:"cache"`
 }
 
-type data []dataItem
+type Data []DataItem
 
-type dataItem struct {
+type DataItem struct {
 	Name            string   `json:"name"`
 	MTU             int      `json:"mtu"`
 	IPAddr          []string `json:"ipaddr"`
@@ -44,7 +44,7 @@ type dataItem struct {
 	SwVLAN          string   `json:"sw_vlan"`
 }
 
-type cache struct {
+type Cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
@@ -52,18 +52,18 @@ type cache struct {
 
 func New() Interfaces {
 	return &interfaces{
-		data: &data{},
-		cache: &cache{
+		data: &Data{},
+		cache: &Cache{
 			Timeout: 5 * 60, // 5 minutes
 		},
 	}
 }
 
-func (i *interfaces) GetData() data {
+func (i *interfaces) GetData() Data {
 	return *i.data
 }
 
-func (i *interfaces) GetCache() cache {
+func (i *interfaces) GetCache() Cache {
 	return *i.cache
 }
 
@@ -110,7 +110,7 @@ func (i *interfaces) ForceUpdate() error {
 			return err
 		}
 
-		sIntf := dataItem{
+		sIntf := DataItem{
 			Name:   rIntf.Name,
 			HWAddr: rIntf.HardwareAddr.String(),
 			MTU:    rIntf.MTU,

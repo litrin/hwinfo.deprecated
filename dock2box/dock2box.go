@@ -14,8 +14,8 @@ import (
 )
 
 type Dock2Box interface {
-	GetData() data
-	GetCache() cache
+	GetData() Data
+	GetCache() Cache
 	SetTimeout(int)
 	Update() error
 	ForceUpdate() error
@@ -42,13 +42,13 @@ type layer struct {
 	CFlagsMarchNative string `json:"cflags_march_native"`
 }
 
-type data struct {
+type Data struct {
 	FirstBoot string `json:"firstboot"`
 	CFlags    string `json:"cflags_march_native"`
 	Layers    layers `json:"layers"`
 }
 
-type cache struct {
+type Cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`

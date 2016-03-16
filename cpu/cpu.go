@@ -5,19 +5,19 @@ import (
 )
 
 type CPU interface {
-	GetData() data
-	GetCache() cache
+	GetData() Data
+	GetCache() Cache
 	SetTimeout(int)
 	Update() error
 	ForceUpdate() error
 }
 
 type cpu struct {
-	data  *data  `json:"data"`
-	cache *cache `json:"cache"`
+	data  *Data  `json:"data"`
+	cache *Cache `json:"cache"`
 }
 
-type data struct {
+type Data struct {
 	Model          string `json:"model"`
 	Flags          string `json:"flags"`
 	Logical        int    `json:"logical"`
@@ -27,7 +27,7 @@ type data struct {
 	ThreadsPerCore int    `json:"threads_per_core"`
 }
 
-type cache struct {
+type Cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
@@ -35,8 +35,8 @@ type cache struct {
 
 func New() CPU {
 	return &cpu{
-		data: &data{},
-		cache: &cache{
+		data: &Data{},
+		cache: &Cache{
 			Timeout: 12 * 60 * 60, // 12 hours
 		},
 	}
@@ -65,10 +65,10 @@ func (c *cpu) SetTimeout(timeout int) {
 	c.cache.Timeout = timeout
 }
 
-func (c *cpu) GetData() data {
+func (c *cpu) GetData() Data {
 	return *c.data
 }
 
-func (c *cpu) GetCache() cache {
+func (c *cpu) GetCache() Cache {
 	return *c.cache
 }

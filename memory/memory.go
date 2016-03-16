@@ -5,19 +5,19 @@ import (
 )
 
 type Memory interface {
-	GetData() data
-	GetCache() cache
+	GetData() Data
+	GetCache() Cache
 	SetTimeout(int)
 	Update() error
 	ForceUpdate() error
 }
 
 type memory struct {
-	data  *data  `json:"data"`
-	cache *cache `json:"cache"`
+	data  *Data  `json:"data"`
+	cache *Cache `json:"cache"`
 }
 
-type cache struct {
+type Cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
@@ -25,18 +25,18 @@ type cache struct {
 
 func New() Memory {
 	return &memory{
-		data: &data{},
-		cache: &cache{
+		data: &Data{},
+		cache: &Cache{
 			Timeout: 5 * 60, // 5 minutes
 		},
 	}
 }
 
-func (m *memory) GetData() data {
+func (m *memory) GetData() Data {
 	return *m.data
 }
 
-func (m *memory) GetCache() cache {
+func (m *memory) GetCache() Cache {
 	return *m.cache
 }
 
