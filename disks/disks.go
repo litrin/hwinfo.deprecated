@@ -23,7 +23,7 @@ type disks struct {
 	cache *cache `json:"cache"`
 }
 
-type data []dataItem
+type Data []dataItem
 
 type dataItem struct {
 	Device string `json:"device"`
@@ -32,7 +32,7 @@ type dataItem struct {
 	SizeGB int    `json:"size_gb"`
 }
 
-type cache struct {
+type Cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`

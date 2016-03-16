@@ -5,19 +5,19 @@ import (
 )
 
 type System interface {
-	GetData() data
-	GetCache() cache
+	GetData() Data
+	GetCache() Cache
 	SetTimeout(int)
 	Update() error
 	ForceUpdate() error
 }
 
 type system struct {
-	data  *data  `json:"data"`
-	cache *cache `json:"cache"`
+	data  *Data  `json:"data"`
+	cache *Cache `json:"cache"`
 }
 
-type cache struct {
+type Cache struct {
 	LastUpdated time.Time `json:"last_updated"`
 	Timeout     int       `json:"timeout_sec"`
 	FromCache   bool      `json:"from_cache"`
@@ -25,18 +25,18 @@ type cache struct {
 
 func New() System {
 	return &system{
-		data: &data{},
-		cache: &cache{
+		data: &Data{},
+		cache: &Cache{
 			Timeout: 5 * 60, // 5 minutes
 		},
 	}
 }
 
-func (s *system) GetData() data {
+func (s *system) GetData() Data {
 	return *s.data
 }
 
-func (s *system) GetCache() cache {
+func (s *system) GetCache() Cache {
 	return *s.cache
 }
 
