@@ -3,20 +3,26 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/mickep76/hwinfo"
 )
 
 func main() {
-	d := hwinfo.NewHWInfo()
-	d.GetTTL()
+	i := hwinfo.New()
+	if err := i.Update(); err != nil {
+		log.Fatal(err.Error())
+	}
 
-	//	fmt.Println(d)
-
-	b, err := json.MarshalIndent(d, "", "    ")
+	data, err := json.MarshalIndent(i.GetData(), "", "    ")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	fmt.Println(string(data))
 
-	fmt.Println(string(b))
+	cache, err := json.MarshalIndent(i.GetCache(), "", "    ")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(string(cache))
 }
