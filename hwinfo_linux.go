@@ -18,36 +18,139 @@ import (
 	"github.com/mickep76/hwinfo/system"
 )
 
+type HWInfo interface {
+	Update() error
+	GetData() data
+	GetCache() cache
+	GetCPU() cpu.CPU
+	GetDisks() disks.Disks
+	GetDock2Box() dock2box.Dock2Box
+	GetInterfaces() interfaces.Interfaces
+	GetLVM() lvm.LVM
+	GetMemory() memory.Memory
+	GetMounts() mounts.Mounts
+	GetOpSys() opsys.OpSys
+	GetPCI() pci.PCI
+	GetRoutes() routes.Routes
+	GetSysctl() sysctl.Sysctl
+	GetSystem() system.System
+	GetInterfaces() interfaces.Interfaces
+}
+
+type hwInfo struct {
+	CPU        cpu.CPU
+	Disks      disks.Disks
+	Dock2Box   dock2box.Dock2Box
+	Interfaces interfaces.Interfaces
+	LVM        lvm.LVM
+	Memory     memory.Memory
+	Mounts     mounts.Mounts
+	OpSys      opsys.OpSys
+	PCI        pci.PCI
+	Routes     routes.Routes
+	Sysctl     sysctl.Sysctl
+	System     system.System
+	data       *data
+	cache      *cache
+}
+
 type data struct {
-	Hostname      string      `json:"hostname"`
-	ShortHostname string      `json:"short_hostname"`
-	CPU           interface{} `json:"cpu"`
-	Disks         interface{} `json:"disks"`
-	Dock2Box      interface{} `json:"dock2box"`
-	Interfaces    interface{} `json:"interfaces"`
-	LVM           interface{} `json:"lvm"`
-	Memory        interface{} `json:"memory"`
-	Mounts        interface{} `json:"mounts"`
-	OpSys         interface{} `json:"opsys"`
-	PCI           interface{} `json:"pci"`
-	Routes        interface{} `json:"routes"`
-	Sysctl        interface{} `json:"sysctl"`
-	System        interface{} `json:"system"`
+	Hostname      string          `json:"hostname"`
+	ShortHostname string          `json:"short_hostname"`
+	CPU           cpu.Data        `json:"cpu"`
+	Disks         disks.Data      `json:"disks"`
+	Dock2Box      dock2box.Data   `json:"dock2box"`
+	Interfaces    interfaces.Data `json:"interfaces"`
+	LVM           lvm.Data        `json:"lvm"`
+	Memory        memory.Data     `json:"memory"`
+	Mounts        mounts.Data     `json:"mounts"`
+	OpSys         opsys.Data      `json:"opsys"`
+	PCI           pci.Data        `json:"pci"`
+	Routes        routes.Data     `json:"routes"`
+	Sysctl        sysctl.Data     `json:"sysctl"`
+	System        system.Data     `json:"system"`
 }
 
 type cache struct {
-	CPU        interface{} `json:"cpu"`
-	Disks      interface{} `json:"disks"`
-	Dock2Box   interface{} `json:"dock2box"`
-	Interfaces interface{} `json:"interfaces"`
-	LVM        interface{} `json:"lvm"`
-	Memory     interface{} `json:"memory"`
-	Mounts     interface{} `json:"mounts"`
-	OpSys      interface{} `json:"opsys"`
-	PCI        interface{} `json:"pci"`
-	Routes     interface{} `json:"routes"`
-	Sysctl     interface{} `json:"sysctl"`
-	System     interface{} `json:"system"`
+	CPU        cpu.Cache        `json:"cpu"`
+	Disks      disks.Cache      `json:"disks"`
+	Dock2Box   dock2box.Cache   `json:"dock2box"`
+	Interfaces interfaces.Cache `json:"interfaces"`
+	LVM        lvm.Cache        `json:"lvm"`
+	Memory     memory.Cache     `json:"memory"`
+	Mounts     mounts.Cache     `json:"mounts"`
+	OpSys      opsys.Cache      `json:"opsys"`
+	PCI        pci.Cache        `json:"pci"`
+	Routes     routes.Cache     `json:"routes"`
+	Sysctl     sysctl.Cache     `json:"sysctl"`
+	System     system.Cache     `json:"system"`
+}
+
+func New() HWInfo {
+	return &hwInfo{
+		CPU:        cpu.New(),
+		Disks:      disks.New(),
+		Dock2Box:   dock2box.New(),
+		Interfaces: interfaces.New(),
+		LVM:        lvm.New(),
+		Memory:     memory.New(),
+		Mounts:     mounts.New(),
+		OpSys:      opsys.New(),
+		PCI:        pci.New(),
+		Routes:     routes.Routes(),
+		Sysctl:     sysctl.Sysctl(),
+		System:     system.New(),
+		data:       &data{},
+		cache:      &cache{},
+	}
+}
+
+func (h *hwInfo) GetCPU() cpu.CPU {
+	return h.CPU
+}
+
+func (h *hwInfo) GetDisks() disks.Disks {
+	return h.CPU
+}
+
+func (h *hwInfo) GetDock2Box() dock2box.Dock2Box {
+	return h.Dock2Box
+}
+
+func (h *hwInfo) GetInterfaces() interfaces.Interfaces {
+	return h.Interfaces
+}
+
+func (h *hwInfo) GetLVM() lvm.LVM {
+	return h.LVM
+}
+
+func (h *hwInfo) GetMemory() memory.Memory {
+	return h.Memory
+}
+
+func (h *hwInfo) GetMounts() mounts.Mounts {
+	return h.Mounts
+}
+
+func (h *hwInfo) GetOpSys() opsys.OpSys {
+	return h.OpSys
+}
+
+func (h *hwInfo) GetPCI() opsys.PCI {
+	return h.PCI
+}
+
+func (h *hwInfo) GetRoutes() routes.Routes {
+	return h.Routes
+}
+
+func (h *hwInfo) GetSysctl() sysctl.Sysctl {
+	return h.Sysctl
+}
+
+func (h *hwInfo) GetSystem() system.System {
+	return h.System
 }
 
 func (h *hwInfo) Update() error {
