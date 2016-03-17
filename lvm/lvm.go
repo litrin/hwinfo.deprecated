@@ -114,6 +114,9 @@ func (l *lvm) Update() error {
 }
 
 func (l *lvm) ForceUpdate() error {
+	l.cache.LastUpdated = time.Now()
+	l.cache.FromCache = false
+
 	if err := l.getPhysVols(); err != nil {
 		return err
 	}

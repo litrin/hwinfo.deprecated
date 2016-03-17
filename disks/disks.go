@@ -79,6 +79,9 @@ func (d *disks) Update() error {
 }
 
 func (disks *disks) ForceUpdate() error {
+	disks.cache.LastUpdated = time.Now()
+	disks.cache.FromCache = false
+
 	files, err := filepath.Glob("/sys/class/block/*")
 	if err != nil {
 		return err
