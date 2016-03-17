@@ -217,7 +217,7 @@ func (h *hwInfo) Update() error {
 	h.cache.Mounts = h.Mounts.GetCache()
 
 	// Sysctl
-	if err := h.sysctl.Update(); err != nil {
+	if err := h.Sysctl.Update(); err != nil {
 		return err
 	}
 	h.data.Sysctl = h.Sysctl.GetData()
