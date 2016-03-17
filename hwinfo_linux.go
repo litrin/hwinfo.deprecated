@@ -160,89 +160,89 @@ func (h *hwInfo) Update() error {
 	h.data.Hostname = host
 	h.data.ShortHostname = strings.Split(host, ".")[0]
 
-	cpu := cpu.New()
-	if err := cpu.Update(); err != nil {
+	// CPU
+	if err := h.CPU.Update(); err != nil {
 		return err
 	}
-	h.data.CPU = cpu.GetData()
-	h.cache.CPU = cpu.GetCache()
+	h.data.CPU = h.CPU.GetData()
+	h.cache.CPU = h.CPU.GetCache()
 
-	system := system.New()
-	if err := system.Update(); err != nil {
+	// System
+	if err := h.System.Update(); err != nil {
 		return err
 	}
-	h.data.System = system.GetData()
-	h.cache.System = system.GetCache()
+	h.data.System = h.System.GetData()
+	h.cache.System = h.System.GetCache()
 
-	memory := memory.New()
-	if err := memory.Update(); err != nil {
+	// Memory
+	if err := h.Memory.Update(); err != nil {
 		return err
 	}
-	h.data.Memory = memory.GetData()
-	h.cache.Memory = memory.GetCache()
+	h.data.Memory = h.Memory.GetData()
+	h.cache.Memory = h.Memory.GetCache()
 
-	interfaces := interfaces.New()
-	if err := interfaces.Update(); err != nil {
+	// Interfaces
+	if err := h.Interfaces.Update(); err != nil {
 		return err
 	}
-	h.data.Interfaces = interfaces.GetData()
-	h.cache.Interfaces = interfaces.GetCache()
+	h.data.Interfaces = h.Interfaces.GetData()
+	h.cache.Interfaces = h.Interfaces.GetCache()
 
-	opSys := opsys.New()
-	if err := opSys.Update(); err != nil {
+	// OpSys
+	if err := h.OpSys.Update(); err != nil {
 		return err
 	}
-	h.data.OpSys = opSys.GetData()
-	h.cache.OpSys = opSys.GetCache()
+	h.data.OpSys = h.OpSys.GetData()
+	h.cache.OpSys = h.OpSys.GetCache()
 
-	disks := disks.New()
-	if err := disks.Update(); err != nil {
+	// Disks
+	if err := h.Disks.Update(); err != nil {
 		return err
 	}
-	h.data.Disks = disks.GetData()
-	h.cache.Disks = disks.GetCache()
+	h.data.Disks = h.Disks.GetData()
+	h.cache.Disks = h.Disks.GetCache()
 
-	dock2box := dock2box.New()
-	if err := dock2box.Update(); err != nil {
+	// Dock2Box
+	if err := h.Dock2Box.Update(); err != nil {
 		return err
 	}
-	h.data.Dock2Box = dock2box.GetData()
-	h.cache.Dock2Box = dock2box.GetCache()
+	h.data.Dock2Box = h.Dock2Box.GetData()
+	h.cache.Dock2Box = h.Dock2Box.GetCache()
 
-	mounts := mounts.New()
-	if err := mounts.Update(); err != nil {
+	// Mounts
+	if err := h.Mounts.Update(); err != nil {
 		return err
 	}
-	h.data.Mounts = mounts.GetData()
-	h.cache.Mounts = mounts.GetCache()
+	h.data.Mounts = h.Mounts.GetData()
+	h.cache.Mounts = h.Mounts.GetCache()
 
-	sysctl := sysctl.New()
-	if err := sysctl.Update(); err != nil {
+	// Sysctl
+	if err := h.sysctl.Update(); err != nil {
 		return err
 	}
-	h.data.Sysctl = sysctl.GetData()
-	h.cache.Sysctl = sysctl.GetCache()
+	h.data.Sysctl = h.Sysctl.GetData()
+	h.cache.Sysctl = h.Sysctl.GetCache()
 
-	pci := pci.New()
-	if err := pci.Update(); err != nil {
+	// PCI
+	if err := h.PCI.Update(); err != nil {
 		return err
 	}
-	h.data.PCI = pci.GetData()
-	h.cache.PCI = pci.GetCache()
+	h.data.PCI = h.PCI.GetData()
+	h.cache.PCI = h.PCI.GetCache()
 
-	routes := routes.New()
-	if err := routes.Update(); err != nil {
+	// Routes
+	if err := h.Routes.Update(); err != nil {
 		return err
 	}
-	h.data.Routes = routes.GetData()
-	h.cache.Routes = routes.GetCache()
+	h.data.Routes = h.Routes.GetData()
+	h.cache.Routes = h.Routes.GetCache()
 
-	lvm := lvm.New()
-	if err := lvm.Update(); err != nil {
+	// LVM
+	if err := h.LVM.Update(); err != nil {
 		return err
 	}
-	h.data.LVM = lvm.GetData()
-	h.cache.LVM = lvm.GetCache()
+	h.data.LVM = h.LVM.GetData()
+	h.cache.LVM = h.LVM.GetCache()
 
 	return nil
 }
