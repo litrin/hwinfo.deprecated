@@ -7,6 +7,7 @@ import (
 	"github.com/mickep76/hwinfo/cpu"
 	"github.com/mickep76/hwinfo/disks"
 	"github.com/mickep76/hwinfo/dock2box"
+	"github.com/mickep76/hwinfo/dock2box/layers"
 	"github.com/mickep76/hwinfo/interfaces"
 	"github.com/mickep76/hwinfo/lvm/logvols"
 	"github.com/mickep76/hwinfo/lvm/physvols"
@@ -27,6 +28,7 @@ type HWInfo interface {
 	GetCPU() cpu.CPU
 	GetDisks() disks.Disks
 	GetDock2Box() dock2box.Dock2Box
+	GetLayers() layers.Layers
 	GetInterfaces() interfaces.Interfaces
 	GetPhysVols() physvols.PhysVols
 	GetLogVols() logvols.LogVols
@@ -44,6 +46,7 @@ type hwInfo struct {
 	CPU        cpu.CPU
 	Disks      disks.Disks
 	Dock2Box   dock2box.Dock2Box
+	Layers     layers.Layers
 	Interfaces interfaces.Interfaces
 	PhysVols   physvols.PhysVols
 	LogVols    logvols.LogVols
@@ -65,6 +68,7 @@ type Data struct {
 	CPU           cpu.Data        `json:"cpu"`
 	Disks         disks.Data      `json:"disks"`
 	Dock2Box      dock2box.Data   `json:"dock2box"`
+	Layers        layers.Data     `json:"layers"`
 	Interfaces    interfaces.Data `json:"interfaces"`
 	PhysVols      physvols.Data   `json:"phys_vols"`
 	LogVols       logvols.Data    `json:"log_vols"`
@@ -82,6 +86,7 @@ type Cache struct {
 	CPU        cpu.Cache        `json:"cpu"`
 	Disks      disks.Cache      `json:"disks"`
 	Dock2Box   dock2box.Cache   `json:"dock2box"`
+	Layers     layers.Cache     `json:"layers"`
 	Interfaces interfaces.Cache `json:"interfaces"`
 	PhysVols   physvols.Cache   `json:"phys_vols"`
 	LogVols    logvols.Cache    `json:"log_vols"`
@@ -100,6 +105,7 @@ func New() HWInfo {
 		CPU:        cpu.New(),
 		Disks:      disks.New(),
 		Dock2Box:   dock2box.New(),
+		Layers:     layers.New(),
 		Interfaces: interfaces.New(),
 		PhysVols:   physvols.New(),
 		LogVols:    logvols.New(),
@@ -126,6 +132,10 @@ func (h *hwInfo) GetDisks() disks.Disks {
 
 func (h *hwInfo) GetDock2Box() dock2box.Dock2Box {
 	return h.Dock2Box
+}
+
+func (h *hwInfo) GetLayers() layers.Layers {
+	return h.Layers
 }
 
 func (h *hwInfo) GetInterfaces() interfaces.Interfaces {
