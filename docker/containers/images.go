@@ -95,7 +95,8 @@ func (conts *containers) ForceUpdate() error {
 
 	o, err := exec.Command("docker", "ps", "-a", "--no-trunc=true").Output()
 	if err != nil {
-		return err
+		//		return err
+		return nil
 	}
 
 	for c, line := range strings.Split(string(o), "\n") {
