@@ -31,7 +31,7 @@ type DataItem struct {
 	Repo     string `json:"repo"`
 	Tag      string `json:"tag"`
 	Created  string `json:"created"`
-	VirtSize string `json:"virtSize"`
+	VirtSize string `json:"virt_size"`
 }
 
 type Cache struct {
