@@ -9,6 +9,7 @@ import (
 	"github.com/mickep76/hwinfo/dock2box"
 	"github.com/mickep76/hwinfo/dock2box/layers"
 	"github.com/mickep76/hwinfo/docker"
+	"github.com/mickep76/hwinfo/docker/containers"
 	"github.com/mickep76/hwinfo/interfaces"
 	"github.com/mickep76/hwinfo/lvm/logvols"
 	"github.com/mickep76/hwinfo/lvm/physvols"
@@ -30,6 +31,7 @@ type HWInfo interface {
 	GetDisks() disks.Disks
 	GetDock2Box() dock2box.Dock2Box
 	GetDocker() docker.Docker
+	GetContainers() containers.Containers
 	GetLayers() layers.Layers
 	GetInterfaces() interfaces.Interfaces
 	GetPhysVols() physvols.PhysVols
@@ -49,6 +51,7 @@ type hwInfo struct {
 	Disks      disks.Disks
 	Dock2Box   dock2box.Dock2Box
 	Docker     docker.Docker
+	Containers containers.Containers
 	Layers     layers.Layers
 	Interfaces interfaces.Interfaces
 	PhysVols   physvols.PhysVols
@@ -72,6 +75,7 @@ type Data struct {
 	Disks         disks.Data      `json:"disks"`
 	Dock2Box      dock2box.Data   `json:"dock2box"`
 	Docker        docker.Data     `json:"docker"`
+	Containers    containers.Data `json:"containers"`
 	Layers        layers.Data     `json:"layers"`
 	Interfaces    interfaces.Data `json:"interfaces"`
 	PhysVols      physvols.Data   `json:"phys_vols"`
@@ -91,6 +95,7 @@ type Cache struct {
 	Disks      disks.Cache      `json:"disks"`
 	Dock2Box   dock2box.Cache   `json:"dock2box"`
 	Docker     docker.Cache     `json:"docker"`
+	Containers containers.Cache `json:"containers"`
 	Layers     layers.Cache     `json:"layers"`
 	Interfaces interfaces.Cache `json:"interfaces"`
 	PhysVols   physvols.Cache   `json:"phys_vols"`
@@ -111,6 +116,7 @@ func New() HWInfo {
 		Disks:      disks.New(),
 		Dock2Box:   dock2box.New(),
 		Docker:     docker.New(),
+		Containers: containers.New(),
 		Layers:     layers.New(),
 		Interfaces: interfaces.New(),
 		PhysVols:   physvols.New(),
@@ -142,6 +148,10 @@ func (h *hwInfo) GetDock2Box() dock2box.Dock2Box {
 
 func (h *hwInfo) GetDocker() docker.Docker {
 	return h.Docker
+}
+
+func (h *hwInfo) GetContainers() containers.Containers {
+	return h.Containers
 }
 
 func (h *hwInfo) GetLayers() layers.Layers {
@@ -255,6 +265,13 @@ func (h *hwInfo) Update() error {
 	}
 	h.data.Docker = h.Docker.GetData()
 	h.cache.Docker = h.Docker.GetCache()
+
+	// Containers
+	if err := h.Containers.Update(); err != nil {
+		return err
+	}
+	h.data.Containers = h.Containers.GetData()
+	h.cache.Containers = h.Containers.GetCache()
 
 	// Mounts
 	if err := h.Mounts.Update(); err != nil {
