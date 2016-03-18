@@ -10,6 +10,7 @@ import (
 	"github.com/mickep76/hwinfo/dock2box/layers"
 	"github.com/mickep76/hwinfo/docker"
 	"github.com/mickep76/hwinfo/docker/containers"
+	"github.com/mickep76/hwinfo/docker/images"
 	"github.com/mickep76/hwinfo/interfaces"
 	"github.com/mickep76/hwinfo/lvm/logvols"
 	"github.com/mickep76/hwinfo/lvm/physvols"
@@ -32,6 +33,7 @@ type HWInfo interface {
 	GetDock2Box() dock2box.Dock2Box
 	GetDocker() docker.Docker
 	GetContainers() containers.Containers
+	GetImages() images.Images
 	GetLayers() layers.Layers
 	GetInterfaces() interfaces.Interfaces
 	GetPhysVols() physvols.PhysVols
@@ -52,6 +54,7 @@ type hwInfo struct {
 	Dock2Box   dock2box.Dock2Box
 	Docker     docker.Docker
 	Containers containers.Containers
+	Images     images.Images
 	Layers     layers.Layers
 	Interfaces interfaces.Interfaces
 	PhysVols   physvols.PhysVols
@@ -76,6 +79,7 @@ type Data struct {
 	Dock2Box      dock2box.Data   `json:"dock2box"`
 	Docker        docker.Data     `json:"docker"`
 	Containers    containers.Data `json:"containers"`
+	Images        images.Data     `json:"images"`
 	Layers        layers.Data     `json:"layers"`
 	Interfaces    interfaces.Data `json:"interfaces"`
 	PhysVols      physvols.Data   `json:"phys_vols"`
@@ -96,6 +100,7 @@ type Cache struct {
 	Dock2Box   dock2box.Cache   `json:"dock2box"`
 	Docker     docker.Cache     `json:"docker"`
 	Containers containers.Cache `json:"containers"`
+	Images     images.Images    `json:"images"`
 	Layers     layers.Cache     `json:"layers"`
 	Interfaces interfaces.Cache `json:"interfaces"`
 	PhysVols   physvols.Cache   `json:"phys_vols"`
@@ -117,6 +122,7 @@ func New() HWInfo {
 		Dock2Box:   dock2box.New(),
 		Docker:     docker.New(),
 		Containers: containers.New(),
+		Images:     images.New(),
 		Layers:     layers.New(),
 		Interfaces: interfaces.New(),
 		PhysVols:   physvols.New(),
@@ -152,6 +158,10 @@ func (h *hwInfo) GetDocker() docker.Docker {
 
 func (h *hwInfo) GetContainers() containers.Containers {
 	return h.Containers
+}
+
+func (h *hwInfo) GetImages() images.Images {
+	return h.Images
 }
 
 func (h *hwInfo) GetLayers() layers.Layers {
