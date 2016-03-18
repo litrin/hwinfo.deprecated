@@ -8,6 +8,7 @@ import (
 	"github.com/mickep76/hwinfo/disks"
 	"github.com/mickep76/hwinfo/dock2box"
 	"github.com/mickep76/hwinfo/dock2box/layers"
+	"github.com/mickep76/hwinfo/docker"
 	"github.com/mickep76/hwinfo/interfaces"
 	"github.com/mickep76/hwinfo/lvm/logvols"
 	"github.com/mickep76/hwinfo/lvm/physvols"
@@ -28,6 +29,7 @@ type HWInfo interface {
 	GetCPU() cpu.CPU
 	GetDisks() disks.Disks
 	GetDock2Box() dock2box.Dock2Box
+	GetDocker() docker.Docker
 	GetLayers() layers.Layers
 	GetInterfaces() interfaces.Interfaces
 	GetPhysVols() physvols.PhysVols
@@ -46,6 +48,7 @@ type hwInfo struct {
 	CPU        cpu.CPU
 	Disks      disks.Disks
 	Dock2Box   dock2box.Dock2Box
+	Docker     docker.Docker
 	Layers     layers.Layers
 	Interfaces interfaces.Interfaces
 	PhysVols   physvols.PhysVols
@@ -68,6 +71,7 @@ type Data struct {
 	CPU           cpu.Data        `json:"cpu"`
 	Disks         disks.Data      `json:"disks"`
 	Dock2Box      dock2box.Data   `json:"dock2box"`
+	Docker        docker.Data     `json:"docker"`
 	Layers        layers.Data     `json:"layers"`
 	Interfaces    interfaces.Data `json:"interfaces"`
 	PhysVols      physvols.Data   `json:"phys_vols"`
@@ -86,6 +90,7 @@ type Cache struct {
 	CPU        cpu.Cache        `json:"cpu"`
 	Disks      disks.Cache      `json:"disks"`
 	Dock2Box   dock2box.Cache   `json:"dock2box"`
+	Docker     docker.Cache     `json:"docker"`
 	Layers     layers.Cache     `json:"layers"`
 	Interfaces interfaces.Cache `json:"interfaces"`
 	PhysVols   physvols.Cache   `json:"phys_vols"`
@@ -105,6 +110,7 @@ func New() HWInfo {
 		CPU:        cpu.New(),
 		Disks:      disks.New(),
 		Dock2Box:   dock2box.New(),
+		Docker:     docker.New(),
 		Layers:     layers.New(),
 		Interfaces: interfaces.New(),
 		PhysVols:   physvols.New(),
@@ -132,6 +138,10 @@ func (h *hwInfo) GetDisks() disks.Disks {
 
 func (h *hwInfo) GetDock2Box() dock2box.Dock2Box {
 	return h.Dock2Box
+}
+
+func (h *hwInfo) GetDocker() docker.Docker {
+	return h.Docker
 }
 
 func (h *hwInfo) GetLayers() layers.Layers {
@@ -238,6 +248,13 @@ func (h *hwInfo) Update() error {
 	}
 	h.data.Dock2Box = h.Dock2Box.GetData()
 	h.cache.Dock2Box = h.Dock2Box.GetCache()
+
+	// Docker
+	if err := h.Docker.Update(); err != nil {
+		return err
+	}
+	h.data.Docker = h.Docker.GetData()
+	h.cache.Docker = h.Docker.GetCache()
 
 	// Mounts
 	if err := h.Mounts.Update(); err != nil {
