@@ -7,11 +7,11 @@ import (
 	//"time"
 
 	//	"github.com/mickep76/hwinfo"
-	"github.com/mickep76/hwinfo/docker/containers"
+	"github.com/mickep76/hwinfo/docker/images"
 )
 
 func main() {
-	c := containers.New()
+	c := images.New()
 	if err := c.Update(); err != nil {
 		log.Fatal(err.Error())
 	}
