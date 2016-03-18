@@ -27,7 +27,7 @@ type images struct {
 type Data []DataItem
 
 type DataItem struct {
-	ID       string `json:"Id"`
+	ID       string `json:"id"`
 	Repo     string `json:"repo"`
 	Tag      string `json:"tag"`
 	Created  string `json:"created"`
