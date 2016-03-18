@@ -28,6 +28,9 @@ type HWInfo interface {
 	GetDisks() disks.Disks
 	GetDock2Box() dock2box.Dock2Box
 	GetInterfaces() interfaces.Interfaces
+	GetPhysVols() physvols.PhysVols
+	GetLogVols() logvols.LogVols
+	GetVolGrps() volgrps.VolGrps
 	GetMemory() memory.Memory
 	GetMounts() mounts.Mounts
 	GetOpSys() opsys.OpSys
