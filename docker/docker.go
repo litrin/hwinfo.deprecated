@@ -26,7 +26,7 @@ type docker struct {
 type Data struct {
 	Version string `json:"version"`
 	Build   string `json:"build"`
-	Status  bool   `json:"status"`
+	Running bool   `json:"running"`
 }
 
 type Cache struct {
@@ -94,8 +94,14 @@ func (d *docker) ForceUpdate() error {
 
 	v := strings.Fields(string(o))
 
-	d.data.Version = v[2]
+	d.data.Version = strings.TrimRight(v[2], ",")
 	d.data.Build = v[4]
+
+	if err := exec.Command("docker", "ps"); err != nil {
+		d.data.Running = false
+	} else {
+		d.data.Running = true
+	}
 
 	return nil
 }
