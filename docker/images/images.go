@@ -3,14 +3,13 @@
 package images
 
 import (
-	//	"fmt"
 	"os/exec"
 	"regexp"
 	"strings"
 	"time"
 )
 
-type Containers interface {
+type Images interface {
 	GetData() Data
 	GetCache() Cache
 	GetDataIntf() interface{}
@@ -20,7 +19,7 @@ type Containers interface {
 	ForceUpdate() error
 }
 
-type containers struct {
+type images struct {
 	data  *Data  `json:"data"`
 	cache *Cache `json:"cache"`
 }
@@ -41,8 +40,8 @@ type Cache struct {
 	FromCache   bool      `json:"from_cache"`
 }
 
-func New() Containers {
-	return &containers{
+func New() Images {
+	return &images{
 		data: &Data{},
 		cache: &Cache{
 			Timeout: 5 * 60, // 5 minutes
@@ -50,46 +49,46 @@ func New() Containers {
 	}
 }
 
-func (c *containers) GetData() Data {
-	return *c.data
+func (i *images) GetData() Data {
+	return *i.data
 }
 
-func (c *containers) GetCache() Cache {
-	return *c.cache
+func (i *images) GetCache() Cache {
+	return *i.cache
 }
 
-func (c *containers) GetDataIntf() interface{} {
-	return *c.data
+func (i *images) GetDataIntf() interface{} {
+	return *i.data
 }
 
-func (c *containers) GetCacheIntf() interface{} {
-	return *c.cache
+func (i *images) GetCacheIntf() interface{} {
+	return *i.cache
 }
 
-func (c *containers) SetTimeout(timeout int) {
-	c.cache.Timeout = timeout
+func (i *images) SetTimeout(timeout int) {
+	i.cache.Timeout = timeout
 }
 
-func (c *containers) Update() error {
-	if c.cache.LastUpdated.IsZero() {
-		if err := c.ForceUpdate(); err != nil {
+func (i *images) Update() error {
+	if i.cache.LastUpdated.IsZero() {
+		if err := i.ForceUpdate(); err != nil {
 			return err
 		}
 	} else {
-		expire := c.cache.LastUpdated.Add(time.Duration(c.cache.Timeout) * time.Second)
+		expire := i.cache.LastUpdated.Add(time.Duration(i.cache.Timeout) * time.Second)
 		if expire.Before(time.Now()) {
-			if err := c.ForceUpdate(); err != nil {
+			if err := i.ForceUpdate(); err != nil {
 				return err
 			}
 		} else {
-			c.cache.FromCache = true
+			i.cache.FromCache = true
 		}
 	}
 
 	return nil
 }
 
-func (cs *containers) ForceUpdate() error {
+func (cs *images) ForceUpdate() error {
 	cs.cache.LastUpdated = time.Now()
 	cs.cache.FromCache = false
 
