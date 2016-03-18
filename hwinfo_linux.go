@@ -28,7 +28,6 @@ type HWInfo interface {
 	GetDisks() disks.Disks
 	GetDock2Box() dock2box.Dock2Box
 	GetInterfaces() interfaces.Interfaces
-	GetLVM() lvm.LVM
 	GetMemory() memory.Memory
 	GetMounts() mounts.Mounts
 	GetOpSys() opsys.OpSys
@@ -43,9 +42,9 @@ type hwInfo struct {
 	Disks      disks.Disks
 	Dock2Box   dock2box.Dock2Box
 	Interfaces interfaces.Interfaces
-	PhysVols   physVols.PhysVols
-	LogVols    logVols.LogVols
-	VolGrps    volGrps.VolGrps
+	PhysVols   physvols.PhysVols
+	LogVols    logvols.LogVols
+	VolGrps    volgrps.VolGrps
 	Memory     memory.Memory
 	Mounts     mounts.Mounts
 	OpSys      opsys.OpSys
@@ -64,9 +63,9 @@ type Data struct {
 	Disks         disks.Data      `json:"disks"`
 	Dock2Box      dock2box.Data   `json:"dock2box"`
 	Interfaces    interfaces.Data `json:"interfaces"`
-	PhysVols      physVols.Data   `json:"phys_vols"`
-	LogVols       logVols.Data    `json:"log_vols"`
-	VolGrps       volGrps.Data    `json:"vol_grps"`
+	PhysVols      physvols.Data   `json:"phys_vols"`
+	LogVols       logvols.Data    `json:"log_vols"`
+	VolGrps       volgrps.Data    `json:"vol_grps"`
 	Memory        memory.Data     `json:"memory"`
 	Mounts        mounts.Data     `json:"mounts"`
 	OpSys         opsys.Data      `json:"opsys"`
@@ -81,9 +80,9 @@ type Cache struct {
 	Disks      disks.Cache      `json:"disks"`
 	Dock2Box   dock2box.Cache   `json:"dock2box"`
 	Interfaces interfaces.Cache `json:"interfaces"`
-	PhysVols   physVols.Cache   `json:"phys_vols"`
-	LogVols    logVols.Cache    `json:"log_vols"`
-	VolGrps    volGrps.Cache    `json:"vol_grps"`
+	PhysVols   physvols.Cache   `json:"phys_vols"`
+	LogVols    logvols.Cache    `json:"log_vols"`
+	VolGrps    volgrps.Cache    `json:"vol_grps"`
 	Memory     memory.Cache     `json:"memory"`
 	Mounts     mounts.Cache     `json:"mounts"`
 	OpSys      opsys.Cache      `json:"opsys"`
@@ -99,9 +98,9 @@ func New() HWInfo {
 		Disks:      disks.New(),
 		Dock2Box:   dock2box.New(),
 		Interfaces: interfaces.New(),
-		PhysVols:   physVols.New(),
-		LogVols:    logVols.New(),
-		VolGrps:    volGrps.New(),
+		PhysVols:   physvols.New(),
+		LogVols:    logvols.New(),
+		VolGrps:    volgrps.New(),
 		Memory:     memory.New(),
 		Mounts:     mounts.New(),
 		OpSys:      opsys.New(),
@@ -138,8 +137,8 @@ func (h *hwInfo) GetLogVols() logvols.LogVols {
 	return h.LogVols
 }
 
-func (h *hwInfo) GetPhysVols() physvols.PhysVols {
-	return h.PhysVols
+func (h *hwInfo) GetVolGrps() volgrps.VolGrps {
+	return h.VolGrps
 }
 
 func (h *hwInfo) GetMemory() memory.Memory {
