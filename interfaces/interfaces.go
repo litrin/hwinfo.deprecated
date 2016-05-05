@@ -171,16 +171,15 @@ func (i *interfaces) ForceUpdate() error {
 				"PortDescr",
 				"VLAN",
 			})
-			if err != nil {
-				return err
+			if err == nil {
+				sIntf.SwChassisID = o2["ChassisID"]
+				sIntf.SwName = o2["SysName"]
+				sIntf.SwDescr = o2["SysDescr"]
+				sIntf.SwPortID = o2["PortID"]
+				sIntf.SwPortDescr = o2["PortDescr"]
+				sIntf.SwVLAN = o2["VLAN"]
 			}
 
-			sIntf.SwChassisID = o2["ChassisID"]
-			sIntf.SwName = o2["SysName"]
-			sIntf.SwDescr = o2["SysDescr"]
-			sIntf.SwPortID = o2["PortID"]
-			sIntf.SwPortDescr = o2["PortDescr"]
-			sIntf.SwVLAN = o2["VLAN"]
 		}
 
 		*i.data = append(*i.data, sIntf)
